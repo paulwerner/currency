@@ -51,10 +51,10 @@ func TestMoney_SameCurrency(t *testing.T) {
 
 func TestMoney_Equals(t *testing.T) {
 	tcs := []struct {
-		m1   *Money
-		m2   *Money
-		want bool
-		wantErr  error
+		m1      *Money
+		m2      *Money
+		want    bool
+		wantErr error
 	}{
 		{New(1, USD), New(1, USD), true, nil},
 		{New(1, EUR), New(1, EUR), true, nil},
@@ -67,10 +67,10 @@ func TestMoney_Equals(t *testing.T) {
 	for _, tc := range tcs {
 		ok, err := tc.m1.Equal(tc.m2)
 		if ok != tc.want {
-			t.Errorf("expected %s and %s equality to be %v, got %v ", tc.m1, tc.m2, tc.want, ok)
+			t.Errorf("expected %+v and %+v equality to be %v, got %v ", tc.m1, tc.m2, tc.want, ok)
 		}
 		if err != tc.wantErr {
-			t.Errorf("expected %s and %s equality to be %v, got %v ", tc.m1, tc.m2, tc.want, ok)
+			t.Errorf("expected %+v and %+v equality to be %v, got %v ", tc.m1, tc.m2, tc.want, ok)
 		}
 	}
 }

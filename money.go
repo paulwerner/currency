@@ -1,7 +1,5 @@
 package money
 
-import "fmt"
-
 type Money struct {
 	amount   int64
 	currency *Currency
@@ -44,13 +42,6 @@ func (m *Money) Equal(om *Money) (bool, error) {
 		return false, err
 	}
 	return m.compare(om) == 0, nil
-}
-
-// String returns a string representation of the Money struct.
-// Should not be confused with the Money.Display method.
-func (m *Money) String() string {
-	return fmt.Sprintf("{Money: {amount: %v, currency: %s}}",
-		m.amount, m.currency.code)
 }
 
 func (m *Money) assertSameCurrency(om *Money) error {
