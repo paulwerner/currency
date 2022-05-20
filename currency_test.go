@@ -39,17 +39,21 @@ func TestCurrency_MustGetCurrency(t *testing.T) {
 	MustGetCurrency("XXX")
 }
 
-func TestCurrency_Equals(t *testing.T) {
-	// test equal
-	eur1 := MustGetCurrency("EUR")
-	eur2 := MustGetCurrency("EUR")
-	if !eur1.equals(eur2) {
-		t.Errorf("expected currencies %s and %s to be equal", eur1, eur2)
+func TestCurrency_Equal(t *testing.T) {
+	tcs := []struct {
+		c1   *Currency
+		c2   *Currency
+		want bool
+	}{
+		{newCurrency("USD"), newCurrency("USD"), true},
+		{newCurrency("EUR"), newCurrency("EUR"), true},
+		{newCurrency("EUR"), newCurrency("USD"), false},
+		{newCurrency("USD"), newCurrency("EUR"), false},
+		{newCurrency("USD"), newCurrency("EUR"), false},
 	}
-
-	// test not equal
-	usd := MustGetCurrency("USD")
-	if eur1.equals(usd) {
-		t.Errorf("expected currencies %s and %s to not be equal", eur1, usd)
+	for _, tc := range tcs {
+		if ok := tc.c1.equals(tc.c2); ok != tc.want {
+			t.Errorf("expected currencies %s and %s equality to be %v, got %v", tc.c1, tc.c2, ok, tc.want)
+		}
 	}
 }
