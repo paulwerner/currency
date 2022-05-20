@@ -2,18 +2,18 @@ package money
 
 import "testing"
 
-func TestGetCurrencyForCode(t *testing.T) {
+func TestGetCurrency(t *testing.T) {
 	// test supported currency
-	currency, err := GetCurrencyForCode("EUR")
+	currency, err := GetCurrency("EUR")
 	if err != nil {
-		t.Errorf("Unexpected error occurred: %s", err)
+		t.Errorf("expected no error, got %s", err)
 	}
 	if currency == nil || currency.code != EUR {
 		t.Errorf("expected currency %s could not be found", EUR)
 	}
 
 	// test unsupported currency
-	currency, err = GetCurrencyForCode("XXX")
+	currency, err = GetCurrency("XXX")
 	if err != ErrUnsupportedCurrency {
 		t.Errorf("expected error %s, got %s", ErrUnsupportedCurrency, err)
 	}
@@ -22,34 +22,34 @@ func TestGetCurrencyForCode(t *testing.T) {
 	}
 }
 
-func TestMustGetCurrencyForCode(t *testing.T) {
+func TestMustGetCurrency(t *testing.T) {
 	// test must get currency
-	currency := MustGetCurrencyForCode("EUR")
+	currency := MustGetCurrency("EUR")
 	if currency == nil || currency.code != EUR {
 		t.Errorf("expected currency %s could not be found", EUR)
 	}
 
 	// test unsupported currency panics
 	defer func() {
-		if r := recover(); r != ErrUnsupportedCurrency {
-			t.Errorf("expected error %s, got %s", ErrUnsupportedCurrency, r)
+		if err := recover(); err != ErrUnsupportedCurrency {
+			t.Errorf("expected error %s, got %s", ErrUnsupportedCurrency, err)
 		}
 	}()
 	// panics
-	MustGetCurrencyForCode("XXX")
+	MustGetCurrency("XXX")
 }
 
-func TestEquals(t *testing.T) {
+func TestEqual(t *testing.T) {
 	// test equal
-	eur1 := MustGetCurrencyForCode("EUR")
-	eur2 := MustGetCurrencyForCode("EUR")
-	if eur1 != eur2 {
+	eur1 := MustGetCurrency("EUR")
+	eur2 := MustGetCurrency("EUR")
+	if !eur1.Equal( eur2) {
 		t.Errorf("expected currencies %s and %s to be equal", eur1, eur2)
 	}
 
 	// test not equal
-	usd := MustGetCurrencyForCode("USD")
-	if eur1 == usd {
-		t.Errorf("expected currencies %s and %s to not be equal", eur1, eur2)
+	usd := MustGetCurrency("USD")
+	if eur1.Equal(usd) {
+		t.Errorf("expected currencies %s and %s to not be equal", eur1, usd)
 	}
 }

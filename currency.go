@@ -6,41 +6,44 @@ type Currency struct {
 	code string
 }
 
-func GetCurrencyForCode(code string) (*Currency, error) {
-	currency, prs := currencies[code]
-	if !prs {
-		return nil, ErrUnsupportedCurrency
-	}
-	return currency, nil
-}
-
-func MustGetCurrencyForCode(code string) *Currency {
-	currency, err := GetCurrencyForCode(code)
-	if err != nil {
-		panic(err)
-	}
-	return currency
-}
-
-func (c *Currency) Code() string {
-	return c.code
-}
-
-func (c *Currency) Equals(oc Currency) bool {
+// Equal returns true, if both currencies have the same code,
+// false otherwise
+func (c *Currency) Equal(oc *Currency) bool {
 	return c.code == oc.code
 }
 
-func (c *Currency) String() string {
-	return c.code
+// GetCurrency returns a Currency for a given code if supported,
+// or ErrUnsupportedCurrency otherwise
+func GetCurrency(code string) (*Currency, error) {
+	return supported.currencyByCode(code)
+}
+
+// MustGetCurrency returns a Currency for a given code if supported,
+// or panics otherwise
+func MustGetCurrency(code string) *Currency {
+	c, err := supported.currencyByCode(code)
+	if err != nil {
+		panic(err)
+	}
+	return c
+}
+
+type currencies map[string]*Currency
+
+func (c currencies) currencyByCode(code string) (*Currency, error) {
+	v, ok := c[code]
+	if !ok {
+		return nil, ErrUnsupportedCurrency
+	}
+	return v, nil
 }
 
 func newCurrency(code string) *Currency {
 	return &Currency{code: strings.ToUpper(code)}
 }
 
-type Currencies map[string]*Currency
-
-var currencies = Currencies{
-	EUR: newCurrency("EUR"),
+// the supported currencies
+var supported = currencies{
 	USD: newCurrency("USD"),
+	EUR: newCurrency("EUR"),
 }
