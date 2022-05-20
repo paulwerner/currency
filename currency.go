@@ -38,6 +38,14 @@ func (c currencies) currencyByCode(code string) (*Currency, error) {
 	return v, nil
 }
 
+func getOrDefault(code string) *Currency {
+	v, ok := supported[code]
+	if ok {
+		return v
+	}
+	return supported[USD]
+}
+
 func newCurrency(code string) *Currency {
 	return &Currency{code: strings.ToUpper(code)}
 }
