@@ -1,34 +1,22 @@
 package money
 
-import "math/big"
-
-// types allowed for monetary unit
-type (
-	Int    = int64
-	BigInt = big.Int
-)
-
-// Number represents a generic type considering int64 or big.Int defined in constants.go
-type Amount interface {
-	Int | BigInt
-}
-
 // Money holds the monetary unit and currency
-type Money[A Amount] struct {
-	amount   A
+type Money struct {
+	amount   int64
 	currency *Currency
 }
 
 // New creates a new Money value for the given amount
 // and currency code
-func New[A Amount](amount A, code string) *Money[A] {
-	return &Money[A]{
+func New(amount int64, code string) *Money {
+	return &Money{
 		amount:   amount,
 		currency: &Currency{code},
 	}
 }
 
 // Currency returns the currency
-func (m *Money[Number]) Currency() *Currency {
+func (m *Money) Currency() *Currency {
 	return m.currency
 }
+
