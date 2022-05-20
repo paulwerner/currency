@@ -1,9 +1,13 @@
 package money
 
-import "math/big"
+import "errors"
 
 // constants for  codes according to ISO 4217
-var (
+const (
 	EUR = "EUR"
 )
 
+// errors
+var (
+	ErrUnsupportedCurrency = errors.New("unsupported currency")
+)
