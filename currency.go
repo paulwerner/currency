@@ -7,10 +7,6 @@ type Currency struct {
 	Code string
 }
 
-func newCurrency(code string) *Currency {
-	return &Currency{Code: strings.ToUpper(code)}
-}
-
 // GetCurrencyForCode returns the currency for a given code
 // or an money.ErrUnsupportedCurrency error if currency could not be found.
 func GetCurrencyForCode(code string) (*Currency, error) {
@@ -42,9 +38,14 @@ func (c *Currency) String() string {
 	return c.Code
 }
 
+func newCurrency(code string) *Currency {
+	return &Currency{Code: strings.ToUpper(code)}
+}
+
 // Currencies holds all the supported currencies for a given code
 type Currencies map[string]*Currency
 
 var currencies = Currencies{
 	EUR: newCurrency("EUR"),
+	USD: newCurrency("USD"),
 }

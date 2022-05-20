@@ -4,6 +4,7 @@ import "errors"
 
 // constants for  codes according to ISO 4217
 const (
+	USD = "USD"
 	EUR = "EUR"
 )
 
