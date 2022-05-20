@@ -10,9 +10,6 @@ type Amount[N Number] struct {
 	val N
 }
 
-// Currency represents the currency
-type Currency string
-
 // Money holds the monetary unit and currency
 type Money[N Number] struct {
 	amount   Amount[N]
