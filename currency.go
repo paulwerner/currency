@@ -4,7 +4,7 @@ import "strings"
 
 // Currency is an ISO 4217 currency designator
 type Currency struct {
-	Code string
+	code string
 }
 
 // GetCurrencyForCode returns the currency for a given code
@@ -27,19 +27,24 @@ func MustGetCurrencyForCode(code string) *Currency {
 	return currency
 }
 
+// Code returns the currency's code
+func (c *Currency) Code() string {
+	return c.code
+}
+
 // Equals returns true, if both Codes are equal,
 // false otherwise
 func (c *Currency) Equals(oc Currency) bool {
-	return c.Code == oc.Code
+	return c.code == oc.code
 }
 
 // String returns the string representation of the currency
 func (c *Currency) String() string {
-	return c.Code
+	return c.code
 }
 
 func newCurrency(code string) *Currency {
-	return &Currency{Code: strings.ToUpper(code)}
+	return &Currency{code: strings.ToUpper(code)}
 }
 
 // Currencies holds all the supported currencies for a given code

@@ -8,7 +8,7 @@ func TestGetCurrencyForCode(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error occurred: %s", err)
 	}
-	if currency == nil || currency.Code != EUR {
+	if currency == nil || currency.code != EUR {
 		t.Errorf("expected currency %s could not be found", EUR)
 	}
 
@@ -25,7 +25,7 @@ func TestGetCurrencyForCode(t *testing.T) {
 func TestMustGetCurrencyForCode(t *testing.T) {
 	// test must get currency
 	currency := MustGetCurrencyForCode("EUR")
-	if currency == nil || currency.Code != EUR {
+	if currency == nil || currency.code != EUR {
 		t.Errorf("expected currency %s could not be found", EUR)
 	}
 
