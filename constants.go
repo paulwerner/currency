@@ -11,4 +11,5 @@ const (
 // errors
 var (
 	ErrUnsupportedCurrency = errors.New("unsupported currency")
+	ErrCurrencyMismatch    = errors.New("currency don't match")
 )

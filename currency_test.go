@@ -2,7 +2,7 @@ package money
 
 import "testing"
 
-func TestGetCurrency(t *testing.T) {
+func TestCurrency_GetCurrency(t *testing.T) {
 	// test supported currency
 	currency, err := GetCurrency("EUR")
 	if err != nil {
@@ -22,7 +22,7 @@ func TestGetCurrency(t *testing.T) {
 	}
 }
 
-func TestMustGetCurrency(t *testing.T) {
+func TestCurrency_MustGetCurrency(t *testing.T) {
 	// test must get currency
 	currency := MustGetCurrency("EUR")
 	if currency == nil || currency.code != EUR {
@@ -39,7 +39,7 @@ func TestMustGetCurrency(t *testing.T) {
 	MustGetCurrency("XXX")
 }
 
-func TestEqual(t *testing.T) {
+func TestCurrency_Equals(t *testing.T) {
 	// test equal
 	eur1 := MustGetCurrency("EUR")
 	eur2 := MustGetCurrency("EUR")
