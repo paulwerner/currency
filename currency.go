@@ -6,9 +6,9 @@ type Currency struct {
 	code string
 }
 
-// Equal returns true, if both currencies have the same code,
+// equals returns true, if both currencies have the same code,
 // false otherwise
-func (c *Currency) Equal(oc *Currency) bool {
+func (c *Currency) equals(oc *Currency) bool {
 	return c.code == oc.code
 }
 

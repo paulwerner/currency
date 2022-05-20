@@ -43,13 +43,13 @@ func TestEqual(t *testing.T) {
 	// test equal
 	eur1 := MustGetCurrency("EUR")
 	eur2 := MustGetCurrency("EUR")
-	if !eur1.Equal( eur2) {
+	if !eur1.equals(eur2) {
 		t.Errorf("expected currencies %s and %s to be equal", eur1, eur2)
 	}
 
 	// test not equal
 	usd := MustGetCurrency("USD")
-	if eur1.Equal(usd) {
+	if eur1.equals(usd) {
 		t.Errorf("expected currencies %s and %s to not be equal", eur1, usd)
 	}
 }
