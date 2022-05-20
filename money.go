@@ -27,3 +27,9 @@ func (m *Money) CurrencyCode() string {
 func (m *Money) Amount() int64 {
 	return m.amount
 }
+
+// SameCurrency returns true, if given Money is equals by currency,
+// false otherwise
+func (m *Money) SameCurrency(om *Money) bool {
+	return m.currency.equals(om.currency)
+}
