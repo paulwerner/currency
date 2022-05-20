@@ -7,6 +7,9 @@ For displaying the monetary value formats are based CLDR standard considering th
 `go get github.com/paulwerner/gomoney`
 
 ## Features
+- precise arithmetic (add, sub, split, multiply) with proper rounding
+- display format based on region or accounting format
+...
 ...
 
 ## Usage
