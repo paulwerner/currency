@@ -7,7 +7,7 @@ import (
 func TestMoney_New(t *testing.T) {
 	tcs := []struct {
 		m                    *Money
-		expectedAmount       int64
+		expectedAmount       Amount
 		expectedCurrency     *Currency
 		expectedCurrencyCode string
 	}{

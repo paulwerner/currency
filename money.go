@@ -1,12 +1,14 @@
 package money
 
+type Amount = int64
+
 type Money struct {
-	amount   int64
+	amount   Amount
 	currency *Currency
 }
 
 // New creates a new Money value with the given amount and code
-func New(amount int64, code string) *Money {
+func New(amount Amount, code string) *Money {
 	return &Money{
 		amount:   amount,
 		currency: getOrDefault(code),
@@ -24,7 +26,7 @@ func (m *Money) CurrencyCode() string {
 }
 
 // Amount returns the amount in the fractional monetary unit
-func (m *Money) Amount() int64 {
+func (m *Money) Amount() Amount {
 	return m.amount
 }
 
@@ -131,12 +133,12 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 }
 
 // Multi returns a new Money with the value representing Self value multiplied with multiplier
-func (m *Money) Multi(mul int64) *Money {
+func (m *Money) Multi(mul Amount) *Money {
 	panic("not implemented")
 }
 
 // Round returns a new Money with the value rounded
-func (m *Money) Round(mul int64) *Money {
+func (m *Money) Round(mul Amount) *Money {
 	panic("not implemented")
 }
 
