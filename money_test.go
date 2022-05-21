@@ -461,8 +461,8 @@ func TestMoney_SplitWitReminder(t *testing.T) {
 			t.Errorf("expected error to be nil, got %s", err)
 		}
 		psl := len(ps)
-		if psl != l {
-			t.Errorf("expected parties count to be %d, got %v", l, len(ps))
+		if l != psl {
+			t.Errorf("expected parties count to be %d, got %v", l, psl)
 		}
 		for i := 0; i < l; i++ {
 			eq, err := ps[i].Equals(tc.want[i])
@@ -483,6 +483,80 @@ func TestMoney_SplitWitReminder(t *testing.T) {
 	}
 }
 
-// TODO
-// func TestMoney_Alloc(t *testing.T) {
-// func TestMoney_AllocWitReminder(t *testing.T) {
+func TestMoney_Alloc(t *testing.T) {
+	tcs := []struct {
+		m    *Money
+		rs   []int
+		want []*Money
+	}{
+		{New(100, EUR), []int{33, 33, 33}, []*Money{New(34, EUR), New(33, EUR), New(33, EUR)}},
+		{New(100, EUR), []int{33, 33}, []*Money{New(50, EUR), New(50, EUR)}},
+		{New(101, EUR), []int{33, 33}, []*Money{New(51, EUR), New(50, EUR)}},
+	}
+
+	for _, tc := range tcs {
+		ps, err := tc.m.Alloc(tc.rs...)
+		if err != nil {
+			t.Errorf("expected error to be nil, got %s", err)
+		}
+		wl := len(tc.want)
+		psl := len(ps)
+		if psl != len(tc.want) {
+			t.Errorf("expected parties count to be %d, got %v", wl, psl)
+		}
+		for i := 0; i < wl; i++ {
+			eq, err := ps[i].Equals(tc.want[i])
+			if err != nil {
+				t.Errorf("expected error to be nil, got %s", err)
+			}
+			if !eq {
+				t.Errorf("expected %d. party's value to be %v, got %v", i, tc.want[i], ps[i])
+			}
+		}
+	}
+}
+
+func TestMoney_AllocWitReminder(t *testing.T) {
+	tcs := []struct {
+		m     *Money
+		rs    []int
+		want  []*Money
+		wantR *Money
+	}{
+		{New(100, EUR), []int{33, 33, 33}, []*Money{New(33, EUR), New(33, EUR), New(33, EUR)}, New(1, EUR)},
+		{New(100, EUR), []int{10, 20, 30}, []*Money{New(16, EUR), New(33, EUR), New(50, EUR)}, New(1, EUR)},
+		{New(100, EUR), []int{33, 33}, []*Money{New(50, EUR), New(50, EUR)}, New(0, EUR)},
+		{New(101, EUR), []int{33, 33}, []*Money{New(50, EUR), New(50, EUR)}, New(1, EUR)},
+		{New(107, EUR), []int{33, 33}, []*Money{New(53, EUR), New(53, EUR)}, New(1, EUR)},
+		{New(100, EUR), []int{25, 50}, []*Money{New(33, EUR), New(66, EUR)}, New(1, EUR)},
+		{New(100, EUR), []int{0, 50}, []*Money{New(0, EUR), New(100, EUR)}, New(0, EUR)},
+	}
+
+	for _, tc := range tcs {
+		ps, r, err := tc.m.AllocWithReminder(tc.rs...)
+		if err != nil {
+			t.Errorf("expected error to be nil, got %s", err)
+		}
+		wl := len(tc.want)
+		psl := len(ps)
+		if psl != len(tc.want) {
+			t.Errorf("expected parties count to be %d, got %v", wl, psl)
+		}
+		for i := 0; i < wl; i++ {
+			eq, err := ps[i].Equals(tc.want[i])
+			if err != nil {
+				t.Errorf("expected error to be nil, got %s", err)
+			}
+			if !eq {
+				t.Errorf("expected %d. party's value to be %v, got %v", i, tc.want[i], ps[i])
+			}
+		}
+		eq, err := r.Equals(tc.wantR)
+		if err != nil {
+			t.Errorf("expected error to be nil, got %s", err)
+		}
+		if !eq {
+			t.Errorf("expected reminder value to be %v, got %v", tc.wantR, r)
+		}
+	}
+}
