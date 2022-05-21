@@ -44,6 +44,42 @@ func (m *Money) Equal(om *Money) (bool, error) {
 	return m.compare(om) == 0, nil
 }
 
+// GreaterThan checks wether Money value is greater than the others,
+// returns an money.ErrCurrencyMismatch error if the currencies don't match
+func (m *Money) GreaterThan(om *Money) (bool, error) {
+	if err := m.assertSameCurrency(om); err != nil {
+		return false, err
+	}
+	return m.compare(om) == 1, nil
+}
+
+// GreaterThanOrEqual checks wether Money value is greater than or equal the others,
+// returns an money.ErrCurrencyMismatch error if the currencies don't match
+func (m *Money) GreaterThanOrEqual(om *Money) (bool, error) {
+	if err := m.assertSameCurrency(om); err != nil {
+		return false, err
+	}
+	return m.compare(om) >= 0, nil
+}
+
+// LessThan checks wether Money value is less than the others,
+// returns an money.ErrCurrencyMismatch error if the currencies don't match
+func (m *Money) LessThan(om *Money) (bool, error) {
+	if err := m.assertSameCurrency(om); err != nil {
+		return false, err
+	}
+	return m.compare(om) == -1, nil
+}
+
+// LessThanOrEqual checks wether Money value is less than or equal the others,
+// returns an money.ErrCurrencyMismatch error if the currencies don't match
+func (m *Money) LessThanOrEqual(om *Money) (bool, error) {
+	if err := m.assertSameCurrency(om); err != nil {
+		return false, err
+	}
+	return m.compare(om) <= 0, nil
+}
+
 func (m *Money) assertSameCurrency(om *Money) error {
 	if !m.SameCurrency(om) {
 		return ErrCurrencyMismatch
