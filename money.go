@@ -37,7 +37,7 @@ func (m *Money) SameCurrency(om *Money) bool {
 // Equals returns true, if given Money is equals by currency and amount,
 // false with error money.ErrCurrencyMismatch if currencies don't match,
 // or false if currency matches, but the amount differs
-func (m *Money) Equal(om *Money) (bool, error) {
+func (m *Money) Equals(om *Money) (bool, error) {
 	if err := m.assertSameCurrency(om); err != nil {
 		return false, err
 	}
@@ -98,6 +98,89 @@ func (m *Money) IsNegative() bool {
 	return m.amount < 0
 }
 
+// Absolute returns a new Money from a given Money
+// using the absolute monetary value
+func (m *Money) Absolute() *Money {
+	panic("not implemented")
+}
+
+// Negative returns a new Money from a given Money
+// using the negative monetary value
+func (m *Money) Negative() *Money {
+	panic("not implemented")
+}
+
+// Add returns a new Money with the value representing the sum of Self and Other Money
+// using the negative monetary value,
+// or returns a money.ErrCurrencyMismatch if currencies don't match
+func (m *Money) Add(om *Money) (*Money, error) {
+	if err := m.assertSameCurrency(om); err != nil {
+		return nil, err
+	}
+	panic("not implemented")
+}
+
+// Subtract returns a new Money with the value representing the difference of Self and Other Money
+// using the negative monetary value,
+// or returns a money.ErrCurrencyMismatch if currencies don't match
+func (m *Money) Subtract(om *Money) (*Money, error) {
+	if err := m.assertSameCurrency(om); err != nil {
+		return nil, err
+	}
+	panic("not implemented")
+}
+
+// Multiply returns a new Money with the value representing Self value multiplied with multiplier
+func (m *Money) Multiply(mul int64) *Money {
+	panic("not implemented")
+}
+
+// Round returns a new Money with the value rounded
+func (m *Money) Round(mul int64) *Money {
+	panic("not implemented")
+}
+
+// Split returns a new a slice of Monies with the Self value split in given number.
+// The leftover after the division will be distributed round-robin amongst the parties.
+// Parties listed first will likely receive more cents than ones listed later.
+func (m *Money) Split(n int) ([]*Money, error) {
+	panic("not implemented")
+}
+
+// SplitWithReminder returns a new a slice of Monies with the Self value split equally in given number.
+// The reminder is returned as separate non nil Money giving the handling to the caller.
+func (m *Money) SplitWithReminder(n int) ([]*Money, *Money, error) {
+	panic("not implemented")
+}
+
+// Allocate returns a slice of Monies with the Self value split in given rations.
+// After allocation the reminder is distributed equally amongst the parties with round-robin principle.
+func (m *Money) Allocate(rs ...int) ([]*Money, error) {
+	panic("not implemented")
+}
+
+// AllocateWithReminder returns a slice of Monies with the Self value split in given rations.
+// After allocation the reminder is returned as a separate non nil Money giving the handling to the caller.
+func (m *Money) AllocateWithReminder(rs ...int) ([]*Money, *Money, error) {
+	panic("not implemented")
+}
+
+// Display displays the Money as a string in given Currency
+func (m *Money) Display() string {
+	panic("not implemented")
+}
+
+// UnmarshalJSON is implementation of json.Unmarshaller
+func (m *Money) UnmarshalJSON(b []byte) error {
+	return UnmarshalJSON(m, b)
+}
+
+// MarshalJSON is implementation of json.Unmarshaller
+func (m Money) MarshalJSON() ([]byte, error) {
+	return MarshalJSON(m)
+}
+
+// ...
 func (m *Money) assertSameCurrency(om *Money) error {
 	if !m.SameCurrency(om) {
 		return ErrCurrencyMismatch

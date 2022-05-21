@@ -65,7 +65,7 @@ func TestMoney_Equals(t *testing.T) {
 	}
 
 	for _, tc := range tcs {
-		ok, err := tc.m1.Equal(tc.m2)
+		ok, err := tc.m1.Equals(tc.m2)
 		if ok != tc.want {
 			t.Errorf("expected %+v and %+v equality to be %v, got %v", tc.m1, tc.m2, tc.want, ok)
 		}
