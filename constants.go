@@ -12,4 +12,5 @@ const (
 var (
 	ErrUnsupportedCurrency = errors.New("unsupported currency")
 	ErrCurrencyMismatch    = errors.New("currency don't match")
+	ErrInvalidJSONUnmarshal    = errors.New("invalid json unmarshal")
 )
