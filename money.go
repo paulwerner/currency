@@ -103,13 +103,13 @@ func (m *Money) IsNegative() bool {
 // Abs returns a new Money from a given Money
 // using the absolute monetary value
 func (m *Money) Abs() *Money {
-	panic("not implemented")
+	return &Money{amount: calc.abs(m.amount), currency: m.currency}
 }
 
 // Neg returns a new Money from a given Money
 // using the negative monetary value
 func (m *Money) Neg() *Money {
-	panic("not implemented")
+	return &Money{amount: calc.neg(m.amount), currency: m.currency}
 }
 
 // Add returns a new Money with the value representing the sum of Self and Other Money
@@ -119,7 +119,7 @@ func (m *Money) Add(om *Money) (*Money, error) {
 	if err := m.assertSameCurrency(om); err != nil {
 		return nil, err
 	}
-	panic("not implemented")
+	return &Money{amount: calc.add(m.amount, om.amount), currency: m.currency}, nil
 }
 
 // Sub returns a new Money with the value representing the difference of Self and Other Money
@@ -129,42 +129,79 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 	if err := m.assertSameCurrency(om); err != nil {
 		return nil, err
 	}
-	panic("not implemented")
+	return &Money{amount: calc.sub(m.amount, om.amount), currency: m.currency}, nil
 }
 
 // Multi returns a new Money with the value representing Self value multiplied with multiplier
-func (m *Money) Multi(mul Amount) *Money {
-	panic("not implemented")
+func (m *Money) Multi(mul int64) *Money {
+	return &Money{amount: calc.multi(m.amount, mul), currency: m.currency}
 }
 
 // Round returns a new Money with the value rounded
-func (m *Money) Round(mul Amount) *Money {
-	panic("not implemented")
+func (m *Money) Round() *Money {
+	return &Money{amount: calc.round(m.amount, m.currency.fraction), currency: m.currency}
 }
 
 // Split returns a new a slice of Monies with the Self value split in given number.
 // The leftover after the division will be distributed round-robin amongst the parties.
 // Parties listed first will likely receive more cents than ones listed later.
 func (m *Money) Split(n int) ([]*Money, error) {
-	panic("not implemented")
+	ms, l, err := m.split(n)
+	if err != nil {
+		return nil, err
+	}
+	// distribute leftover amongst first parties
+	v := Amount(1)
+	if m.amount < 0 {
+		v = -1
+	}
+	for p := 0; l != 0; p++ {
+		ms[p].amount = calc.add(ms[p].amount, v)
+		l--
+	}
+	return ms, nil
 }
 
 // SplitWithReminder returns a new a slice of Monies with the Self value split equally in given number.
 // The reminder is returned as separate non nil Money giving the handling to the caller.
 func (m *Money) SplitWithReminder(n int) ([]*Money, *Money, error) {
-	panic("not implemented")
+	ms, l, err := m.split(n)
+	if err != nil {
+		return nil, nil, err
+	}
+	return ms, &Money{amount: l, currency: m.currency}, nil
 }
 
 // Alloc returns a slice of Monies with the Self value split in given rations.
 // After allocation the reminder is distributed equally amongst the parties with round-robin principle.
 func (m *Money) Alloc(rs ...int) ([]*Money, error) {
-	panic("not implemented")
+	ms, lo, err := m.alloc(rs...)
+	if err != nil {
+		return nil, err
+	}
+
+	// distribute leftover equally amongst first parties
+	sub := Amount(1)
+	if lo < 0 {
+		sub = -sub
+	}
+
+	for p := 0; lo != 0; p++ {
+		ms[p].amount = calc.add(ms[p].amount, sub)
+		lo -= sub
+	}
+
+	return ms, nil
 }
 
 // AllocWithReminder returns a slice of Monies with the Self value split in given rations.
 // After allocation the reminder is returned as a separate non nil Money giving the handling to the caller.
 func (m *Money) AllocWithReminder(rs ...int) ([]*Money, *Money, error) {
-	panic("not implemented")
+	ms, lo, err := m.alloc(rs...)
+	if err != nil {
+		return nil, nil, err
+	}
+	return ms, &Money{amount: lo, currency: m.currency}, nil
 }
 
 // Display displays the Money as a string in given Currency
@@ -188,6 +225,50 @@ func (m *Money) assertSameCurrency(om *Money) error {
 		return ErrCurrencyMismatch
 	}
 	return nil
+}
+
+func (m *Money) split(n int) ([]*Money, Amount, error) {
+	if n <= 0 {
+		return nil, 0, ErrSplitNotPositive
+	}
+
+	a := calc.div(m.amount, Amount(n))
+	ms := make([]*Money, n)
+
+	for i := 0; i < n; i++ {
+		ms[i] = &Money{amount: a, currency: m.currency}
+	}
+
+	r := calc.mod(m.amount, Amount(n))
+	l := calc.abs(r)
+
+	return ms, l, nil
+}
+
+func (m *Money) alloc(rs ...int) ([]*Money, Amount, error) {
+	if len(rs) == 0 {
+		return nil, 0, ErrNoRatiosSpecified
+	}
+
+	var sum int
+	for _, r := range rs {
+		sum += r
+	}
+
+	var total Amount
+	ms := make([]*Money, 0, len(rs))
+	for _, r := range rs {
+		p := &Money{
+			amount:   calc.alloc(m.amount, r, sum),
+			currency: m.currency,
+		}
+		ms = append(ms, p)
+		total += p.amount
+	}
+
+	lo := m.amount - total
+
+	return ms, lo, nil
 }
 
 func (m *Money) compare(om *Money) int {

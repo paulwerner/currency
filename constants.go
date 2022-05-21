@@ -10,7 +10,9 @@ const (
 
 // errors
 var (
-	ErrUnsupportedCurrency = errors.New("unsupported currency")
-	ErrCurrencyMismatch    = errors.New("currency don't match")
-	ErrInvalidJSONUnmarshal    = errors.New("invalid json unmarshal")
+	ErrUnsupportedCurrency  = errors.New("unsupported currency")
+	ErrCurrencyMismatch     = errors.New("currency don't match")
+	ErrInvalidJSONUnmarshal = errors.New("invalid json unmarshal")
+	ErrSplitNotPositive     = errors.New("split must be positive")
+	ErrNoRatiosSpecified    = errors.New("no ratios specified")
 )
