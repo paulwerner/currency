@@ -3,7 +3,8 @@ package money
 import "strings"
 
 type Currency struct {
-	code string
+	code     string
+	fraction int
 }
 
 // equals returns true, if both currencies have the same code,
@@ -46,12 +47,15 @@ func getOrDefault(code string) *Currency {
 	return supported[USD]
 }
 
-func newCurrency(code string) *Currency {
-	return &Currency{code: strings.ToUpper(code)}
+func newCurrency(code string, fraction int) *Currency {
+	return &Currency{
+		code:     strings.ToUpper(code),
+		fraction: fraction,
+	}
 }
 
 // the supported currencies
 var supported = currencies{
-	USD: newCurrency("USD"),
-	EUR: newCurrency("EUR"),
+	USD: newCurrency("USD", 2),
+	EUR: newCurrency("EUR", 2),
 }

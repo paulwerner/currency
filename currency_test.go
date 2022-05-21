@@ -18,7 +18,7 @@ func TestCurrency_GetCurrency(t *testing.T) {
 		t.Errorf("expected error %s, got %s", ErrUnsupportedCurrency, err)
 	}
 	if currency != nil {
-		t.Errorf("expected currency to be nil, got %s", currency)
+		t.Errorf("expected currency to be nil, got %v", currency)
 	}
 }
 
@@ -45,15 +45,15 @@ func TestCurrency_Equal(t *testing.T) {
 		c2   *Currency
 		want bool
 	}{
-		{newCurrency("USD"), newCurrency("USD"), true},
-		{newCurrency("EUR"), newCurrency("EUR"), true},
-		{newCurrency("EUR"), newCurrency("USD"), false},
-		{newCurrency("USD"), newCurrency("EUR"), false},
-		{newCurrency("USD"), newCurrency("EUR"), false},
+		{newCurrency("USD", 2), newCurrency("USD", 2), true},
+		{newCurrency("EUR", 2), newCurrency("EUR", 2), true},
+		{newCurrency("EUR", 2), newCurrency("USD", 2), false},
+		{newCurrency("USD", 2), newCurrency("EUR", 2), false},
+		{newCurrency("USD", 2), newCurrency("EUR", 2), false},
 	}
 	for _, tc := range tcs {
 		if ok := tc.c1.equals(tc.c2); ok != tc.want {
-			t.Errorf("expected currencies %s and %s equality to be %v, got %v", tc.c1, tc.c2, ok, tc.want)
+			t.Errorf("expected currencies %v and %v equality to be %v, got %v", tc.c1, tc.c2, ok, tc.want)
 		}
 	}
 }
