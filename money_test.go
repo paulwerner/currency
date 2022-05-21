@@ -198,3 +198,54 @@ func TestMoney_LessThanOrEqual(t *testing.T) {
 		}
 	}
 }
+
+func TestMoney_IsZero(t *testing.T) {
+	tcs := []struct {
+		m    *Money
+		want bool
+	}{
+		{New(1, EUR), false},
+		{New(0, EUR), true},
+		{New(-1, EUR), false},
+	}
+
+	for _, tc := range tcs {
+		if tc.m.IsZero() != tc.want {
+			t.Errorf("expected money value %v to be zero", tc.m.amount)
+		}
+	}
+}
+
+func TestMoney_IsPositive(t *testing.T) {
+	tcs := []struct {
+		m    *Money
+		want bool
+	}{
+		{New(1, EUR), true},
+		{New(0, EUR), false},
+		{New(-1, EUR), false},
+	}
+
+	for _, tc := range tcs {
+		if tc.m.IsPositive() != tc.want {
+			t.Errorf("expected money value %v to be positive", tc.m.amount)
+		}
+	}
+}
+
+func TestMoney_IsNegative(t *testing.T) {
+	tcs := []struct {
+		m    *Money
+		want bool
+	}{
+		{New(1, EUR), false},
+		{New(0, EUR), false},
+		{New(-1, EUR), true},
+	}
+
+	for _, tc := range tcs {
+		if tc.m.IsNegative() != tc.want {
+			t.Errorf("expected money value %v to be negative", tc.m.amount)
+		}
+	}
+}

@@ -80,6 +80,24 @@ func (m *Money) LessThanOrEqual(om *Money) (bool, error) {
 	return m.compare(om) <= 0, nil
 }
 
+// IsZero returns true if the Money value is equals to zero,
+// false otherwise
+func (m *Money) IsZero() bool {
+	return m.amount == 0
+}
+
+// IsPositive returns true if the Money value is positive,
+// false otherwise
+func (m *Money) IsPositive() bool {
+	return m.amount > 0
+}
+
+// IsNegative returns true if the Money value is negative,
+// false otherwise
+func (m *Money) IsNegative() bool {
+	return m.amount < 0
+}
+
 func (m *Money) assertSameCurrency(om *Money) error {
 	if !m.SameCurrency(om) {
 		return ErrCurrencyMismatch
