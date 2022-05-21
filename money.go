@@ -98,15 +98,15 @@ func (m *Money) IsNegative() bool {
 	return m.amount < 0
 }
 
-// Absolute returns a new Money from a given Money
+// Abs returns a new Money from a given Money
 // using the absolute monetary value
-func (m *Money) Absolute() *Money {
+func (m *Money) Abs() *Money {
 	panic("not implemented")
 }
 
-// Negative returns a new Money from a given Money
+// Neg returns a new Money from a given Money
 // using the negative monetary value
-func (m *Money) Negative() *Money {
+func (m *Money) Neg() *Money {
 	panic("not implemented")
 }
 
@@ -120,18 +120,18 @@ func (m *Money) Add(om *Money) (*Money, error) {
 	panic("not implemented")
 }
 
-// Subtract returns a new Money with the value representing the difference of Self and Other Money
+// Sub returns a new Money with the value representing the difference of Self and Other Money
 // using the negative monetary value,
 // or returns a money.ErrCurrencyMismatch if currencies don't match
-func (m *Money) Subtract(om *Money) (*Money, error) {
+func (m *Money) Sub(om *Money) (*Money, error) {
 	if err := m.assertSameCurrency(om); err != nil {
 		return nil, err
 	}
 	panic("not implemented")
 }
 
-// Multiply returns a new Money with the value representing Self value multiplied with multiplier
-func (m *Money) Multiply(mul int64) *Money {
+// Multi returns a new Money with the value representing Self value multiplied with multiplier
+func (m *Money) Multi(mul int64) *Money {
 	panic("not implemented")
 }
 
@@ -153,15 +153,15 @@ func (m *Money) SplitWithReminder(n int) ([]*Money, *Money, error) {
 	panic("not implemented")
 }
 
-// Allocate returns a slice of Monies with the Self value split in given rations.
+// Alloc returns a slice of Monies with the Self value split in given rations.
 // After allocation the reminder is distributed equally amongst the parties with round-robin principle.
-func (m *Money) Allocate(rs ...int) ([]*Money, error) {
+func (m *Money) Alloc(rs ...int) ([]*Money, error) {
 	panic("not implemented")
 }
 
-// AllocateWithReminder returns a slice of Monies with the Self value split in given rations.
+// AllocWithReminder returns a slice of Monies with the Self value split in given rations.
 // After allocation the reminder is returned as a separate non nil Money giving the handling to the caller.
-func (m *Money) AllocateWithReminder(rs ...int) ([]*Money, *Money, error) {
+func (m *Money) AllocWithReminder(rs ...int) ([]*Money, *Money, error) {
 	panic("not implemented")
 }
 
