@@ -9,6 +9,7 @@ For displaying the monetary value formats are based CLDR standard considering th
 ## Features
 - precise arithmetic (add, sub, split, multiply) with proper rounding
 - display format based on region or accounting format
+- allow custom de-/serializer
 ...
 ...
 
