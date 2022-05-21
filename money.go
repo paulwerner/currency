@@ -132,9 +132,9 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 	return &Money{amount: calc.sub(m.amount, om.amount), currency: m.currency}, nil
 }
 
-// Multi returns a new Money with the value representing Self value multiplied with multiplier
-func (m *Money) Multi(mul int64) *Money {
-	return &Money{amount: calc.multi(m.amount, mul), currency: m.currency}
+// Mul returns a new Money with the value representing Self value multiplied with multiplier
+func (m *Money) Mul(mul int64) *Money {
+	return &Money{amount: calc.mul(m.amount, mul), currency: m.currency}
 }
 
 // Round returns a new Money with the value rounded

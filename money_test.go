@@ -354,7 +354,7 @@ func TestMoney_Sub(t *testing.T) {
 	}
 }
 
-func TestMoney_Multi(t *testing.T) {
+func TestMoney_Mul(t *testing.T) {
 	tcs := []struct {
 		m    *Money
 		mul  int64
@@ -370,7 +370,7 @@ func TestMoney_Multi(t *testing.T) {
 	}
 
 	for _, tc := range tcs {
-		sum := tc.m.Multi(tc.mul)
+		sum := tc.m.Mul(tc.mul)
 		eq, err := sum.Equals(tc.want)
 		if err != nil {
 			t.Errorf("expected error to be nil, got %s", err)

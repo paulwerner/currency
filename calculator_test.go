@@ -40,7 +40,7 @@ func TestCalculator_sub(t *testing.T) {
 	}
 }
 
-func TestCalculator_multi(t *testing.T) {
+func TestCalculator_mul(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
 		a    Amount
@@ -54,7 +54,7 @@ func TestCalculator_multi(t *testing.T) {
 	}
 
 	for _, tc := range tcs {
-		if prod := calc.multi(tc.a, tc.b); prod != tc.want {
+		if prod := calc.mul(tc.a, tc.b); prod != tc.want {
 			t.Errorf("expected %d * %d to be %d, got %d", tc.a, tc.b, tc.want, prod)
 		}
 	}

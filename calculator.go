@@ -14,7 +14,7 @@ func (c *calculator) sub(a, b Amount) Amount {
 	return a - b
 }
 
-func (c *calculator) multi(a Amount, m int64) Amount {
+func (c *calculator) mul(a Amount, m int64) Amount {
 	return a * m
 }
 
