@@ -1,9 +1,11 @@
 package gen
 
 import (
+	"bytes"
 	"fmt"
 	"go/format"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 )
@@ -38,4 +40,19 @@ func WriteGo(w io.Writer, pkg, tags string, b []byte) (n int, err error) {
 		return n, err
 	}
 	return w.Write(formatted)
+}
+
+func Repackage(inFile, outFile, pkg string) {
+	src, err := ioutil.ReadFile(inFile)
+	if err != nil {
+		log.Fatalf("error reading %s: %v", inFile, err)
+	}
+	const toDelete = "package main\n\n"
+	i := bytes.Index(src, []byte(toDelete))
+	if i < 0 {
+		log.Fatalf("error finding %q in %s", toDelete, inFile)
+	}
+	w := &bytes.Buffer{}
+	w.Write(src[i+len(toDelete):])
+	WriteGoFile(outFile, pkg, w.Bytes())
 }
