@@ -4,11 +4,13 @@ test:
 fetch:
 	CLDR_VERSION=40 ./fetch-cldr.sh
 
-gen: fetch
+gen: 
 	CLDR_VERSION=40 go generate
 
+gen-fetch: fetch gen
+
 clean:
-	rm ./core.zip
+	rm ./pkg/tables.go
 
 clean-all: clean
-	rm ./pkg/tables.go
+	rm ./core.zip
