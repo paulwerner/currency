@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"golang.org/x/text/unicode/cldr"
 )
@@ -30,20 +31,172 @@ func init() {
 func main() {
 	zip := openZip()
 	defer zip.Close()
-	_ = getCLDRData(zip)
 
 	f := openFile()
 	defer f.Close()
+
+	db := getCLDRData(zip)
 	genHeader(f)
+	genTables(f, db)
+}
+
+type country struct {
+	code string
+	name string
+
+	currencies []string
+}
+
+type currency struct {
+	code         string
+	digits       uint
+	rounding     uint
+	cashDigits   uint
+	cashRounding uint
+
+	countries []string
+}
+
+func genTables(f *os.File, db *cldr.CLDR) {
+	countries := getCountries(db)
+	genCountries(f, countries)
+	currencies := getCurrencies(db)
+	genCurrencies(f, currencies)
+}
+
+func genCurrencies(f *os.File, cus *map[string]*currency) {
+	for _, cu := range *cus {
+		log.Println(cu)
+	}
+}
+
+func atou(s string, defaul uint) uint {
+	if len(s) == 0 {
+		return defaul
+	}
+	u, err := strconv.ParseUint(s, 10, 8)
+	if err != nil {
+		panic(err)
+	}
+	return uint(u)
+}
+
+func getCurrencies(db *cldr.CLDR) *map[string]*currency {
+	currencies := make(map[string]*currency)
+	supld := db.Supplemental()
+	for _, frac := range supld.CurrencyData.Fractions[0].Info {
+		if len(frac.Iso4217) != 3 {
+			continue
+		}
+		var c currency
+		c.code = frac.Iso4217
+		c.digits = atou(frac.Digits, 2)
+		c.rounding = atou(frac.Rounding, 0)
+		c.cashDigits = atou(frac.CashDigits, c.digits)
+		c.cashRounding = atou(frac.CashRounding, c.rounding)
+		currencies[c.code] = &c
+	}
+
+	for _, r := range supld.CurrencyData.Region {
+		for _, cu := range r.Currency {
+			// take only tender currencies
+			if cu.Tender == "false" {
+				continue
+			}
+			// keep only current currencies
+			if len(cu.To) > 0 {
+				continue
+			}
+			c := currencies[cu.Iso4217]
+			if c == nil {
+				c = &currency{
+					code:         cu.Iso4217,
+					digits:       2,
+					rounding:     0,
+					cashDigits:   2,
+					cashRounding: 0,
+				}
+				currencies[c.code] = c
+			}
+			c.countries = append(c.countries, r.Iso3166)
+		}
+	}
+	return &currencies
+}
+
+func genCountries(f *os.File, cs *map[string]*country) {
+	for _, c := range *cs {
+		log.Println(c)
+	}
+}
+
+func getCountries(db *cldr.CLDR) *map[string]*country {
+	ldml := db.RawLDML("en")
+	supd := db.Supplemental()
+
+	territories := ldml.LocaleDisplayNames.Territories.Territory
+	countries := make(map[string]*country, len(territories))
+	for _, ter := range territories {
+		// Skip alt="short", alt="variant"
+		if len(ter.Alt) > 0 {
+			continue
+		}
+		// Skip continents
+		if len(ter.Type) != 2 {
+			continue
+		}
+		// Remove "QO" (in CLDR, but invalid ISO-3166)
+		if ter.Type[0] == 'Q' && ter.Type[1] >= 'M' {
+			continue
+		}
+		if ter.Type == "ZZ" {
+			continue
+		}
+		// Remove "X?" except "XK" (special code for Kosovo)
+		if ter.Type[0] == 'X' && ter.Type[1] != 'K' {
+			continue
+		}
+		countries[ter.Type] = &country{code: ter.Type, name: ter.Data()}
+	}
+
+	for _, r := range supd.CurrencyData.Region {
+		c := countries[r.Iso3166]
+		if c == nil {
+			continue
+		}
+
+		for _, cu := range r.Currency {
+			if cu.Tender == "false" {
+				continue
+			}
+
+			// keep only current currencies
+			if len(cu.To) > 0 {
+				continue
+			}
+			c.currencies = append(c.currencies, cu.Iso4217)
+		}
+		switch len(c.currencies) {
+		case 1:
+		case 0:
+			log.Printf("%s: no currencies", c.code)
+		default:
+			log.Printf("%s.Currencies: %v", c.code, c.currencies)
+		}
+	}
+
+	fmt.Println(len(countries), "countries.")
+	return &countries
 }
 
 func getCLDRData(f *os.File) *cldr.CLDR {
 	dc := &cldr.Decoder{}
-	cldrData, err := dc.DecodeZip(f)
+	data, err := dc.DecodeZip(f)
 	if err != nil {
 		log.Fatalf("error decoding cldr core.zip: %v", err)
 	}
-	return cldrData
+	data.SetDraftLevel(cldr.Contributed, false)
+	return data
 }
 
 func openZip() *os.File {
