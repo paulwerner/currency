@@ -7,13 +7,18 @@ For displaying the monetary value formats are based CLDR standard considering th
 `go get github.com/paulwerner/gomoney`
 
 ## Features
+- low ops and memory allocation
 - precise arithmetic (add, sub, split, multiply) with proper rounding
 - display format based on region or accounting format
 - allow custom de-/serializer
+- region and currency generation based on CLDR data
 ...
 ...
 
 ## Usage
+### code generation
+`go generate`
+
 ...
 
 
