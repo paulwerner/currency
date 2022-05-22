@@ -30,7 +30,7 @@ func defaultUnmarshalJSON(m *Money, b []byte) error {
 			return ErrInvalidJSONUnmarshal
 		}
 	}
-	
+
 	var currency string
 	if currencyRaw, ok := data["currency"]; ok {
 		currency, ok = currencyRaw.(string)
@@ -38,16 +38,16 @@ func defaultUnmarshalJSON(m *Money, b []byte) error {
 			return ErrInvalidJSONUnmarshal
 		}
 	}
-	
+
 	var ref *Money
 	if amount == 0 && currency == "" {
 		ref = &Money{}
-		} else {
-			ref = New(int64(amount), currency)
-		}
-		*m = *ref
-		return nil
+	} else {
+		ref = New(int64(amount), currency)
 	}
+	*m = *ref
+	return nil
+}
 
 func defaultMarshalJSON(m Money) ([]byte, error) {
 	if m == (Money{}) {
