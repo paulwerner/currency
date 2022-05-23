@@ -45,10 +45,6 @@ func (c *Currency) String() string {
 	return currency.Elem(int(c.index))[:3]
 }
 
-func (c *Currency) template(r Region) string {
-	panic("not implemented")
-}
-
 var (
 	// Undefined and testing
 	XXX Currency = Currency{}
