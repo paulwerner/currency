@@ -31,16 +31,18 @@ type Currency struct {
 	index uint16
 }
 
+// Code reports the currency's ISO code
+// See: Currency.String()
 func (c *Currency) Code() string {
-	panic("not implemented")
+	return c.String()
 }
 
-func (c *Currency) CodeNumeric() uint8 {
-	panic("not implemented")
-}
-
+// String returns the currency's ISO code
 func (c *Currency) String() string {
-	panic("not implemented")
+	if c.index == 0 {
+		return "XXX"
+	}
+	return currency.Elem(int(c.index))[:3]
 }
 
 func (c *Currency) template(r Region) string {
