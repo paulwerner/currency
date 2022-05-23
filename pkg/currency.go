@@ -1,5 +1,31 @@
 package money
 
+// Kind determines the rounding and rendering properties of the currency value
+type Kind struct {
+	rounding rounding
+	// TODO: formatting: (standard|accounting)
+}
+
+type rounding byte
+
+const (
+	standard rounding = iota
+	cash
+)
+
+// Rounding reports the rounding characteristics for the given currency, where
+// scale is the number of fractional decimals and increment is the number of
+// units in terms of 10^(-scale) to which to round to
+func (k Kind) Rounding(cur Currency) (scale, increment int) {
+	info := currency.Elem(int(cur.index))[3]
+	switch k.rounding {
+	case standard:
+		info &= roundMask
+	case cash:
+		info >>= cashShift
+	}
+	return int(roundings[info].scale), int(roundings[info].increment)
+}
 
 type Currency struct {
 	index uint16
