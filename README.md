@@ -1,24 +1,28 @@
-# gomoney
+# GoMoney
 
-gomoney provides a monetary value for the go programming language with precise operations, e.g. summing,  splitting, allocation and rounding, by using the currency's smallest fractional monetary unit for computation as defined in the ISO 4217.
-For displaying the monetary value formats are based CLDR standard considering the selected region, as well as formats .
+GoMoney brings handling of monetary value to the go programming language. As the phrase says "time is money", it's build from the ground up for high performance and accuracy using up to date data from the Unicode CLDR Project.
+
 
 ## Quick start
 `go get github.com/paulwerner/gomoney`
 
+
 ## Features
 - low ops and memory allocation
 - precise arithmetic (add, sub, split, multiply) with proper rounding
+- support for 25+ currencies
 - display format based on region or accounting format
 - allow custom de-/serializer
 - region and currency generation based on CLDR data
 ...
-...
+
 
 ## Usage
-### code generation
-`go generate`
+...
 
+
+## COde Generation
+`go generate`
 ...
 
 
