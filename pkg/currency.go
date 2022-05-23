@@ -1,5 +1,6 @@
 package money
 
+
 type Currency struct {
 	index uint16
 }
@@ -22,7 +23,7 @@ func (c *Currency) template(r Region) string {
 
 var (
 	// Undefined and testing
-	XXX Currency = Currency{xxx}
+	XXX Currency = Currency{}
 	XTS Currency = Currency{xts}
 
 	// G10 currencies https://en.wikipedia.org/wiki/G10_currencies
