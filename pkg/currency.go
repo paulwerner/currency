@@ -27,6 +27,7 @@ func (k Kind) Rounding(cur Currency) (scale, increment int) {
 	return int(roundings[info].scale), int(roundings[info].increment)
 }
 
+// Currency contains the index with which the currency information can be retrieved from tables.currency
 type Currency struct {
 	index uint16
 }
