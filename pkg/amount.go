@@ -17,6 +17,7 @@ func NewAmount(val amountValue, isoCode string) (*Amount, error) {
 	return &Amount{val: val, currency: cur}, nil
 }
 
+// Currency reports the amount's currency
 func (m *Amount) Currency() Currency {
 	return m.currency
 }
