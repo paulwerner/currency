@@ -5,9 +5,9 @@ import "testing"
 func TestCalculator_Add(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
-		a    int64
-		b    int64
-		want int64
+		a    Value
+		b    Value
+		want Value
 	}{
 		{1, 2, 3},
 		{-1, 2, 1},
@@ -24,9 +24,9 @@ func TestCalculator_Add(t *testing.T) {
 func TestCalculator_sub(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
-		a    int64
-		b    int64
-		want int64
+		a    Value
+		b    Value
+		want Value
 	}{
 		{1, 2, -1},
 		{-1, 2, -3},
@@ -43,9 +43,9 @@ func TestCalculator_sub(t *testing.T) {
 func TestCalculator_mul(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
-		a    int64
-		b    int64
-		want int64
+		a    Value
+		b    Value
+		want Value
 	}{
 		{1, 2, 2},
 		{-1, 2, -2},
@@ -63,9 +63,9 @@ func TestCalculator_mul(t *testing.T) {
 func TestCalculator_div(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
-		a    int64
-		b    int64
-		want int64
+		a    Value
+		b    Value
+		want Value
 	}{
 		{10, 2, 5},
 		{11, 2, 5},
@@ -83,9 +83,9 @@ func TestCalculator_div(t *testing.T) {
 func TestCalculator_mod(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
-		a    int64
-		d    int64
-		want int64
+		a    Value
+		d    Value
+		want Value
 	}{
 		{100, 10, 0},
 		{100, 11, 1},
@@ -107,10 +107,10 @@ func TestCalculator_mod(t *testing.T) {
 func TestCalculator_alloc(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
-		a    int64
+		a    Value
 		r    int
 		s    int
-		want int64
+		want Value
 	}{
 		{100, 10, 50, 20},
 		{100, 2, 50, 4},
@@ -131,8 +131,8 @@ func TestCalculator_alloc(t *testing.T) {
 func TestCalculator_abs(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
-		a    int64
-		want int64
+		a    Value
+		want Value
 	}{
 		{100, 100},
 		{-100, 100},
@@ -148,8 +148,8 @@ func TestCalculator_abs(t *testing.T) {
 func TestCalculator_neg(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
-		a    int64
-		want int64
+		a    Value
+		want Value
 	}{
 		{100, -100},
 		{-100, -100},
@@ -165,9 +165,9 @@ func TestCalculator_neg(t *testing.T) {
 func TestCalculator_round(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
-		a    int64
+		a    Value
 		e    int
-		want int64
+		want Value
 	}{
 		{1023, 2, 1000},
 		{1023, 1, 1020},
