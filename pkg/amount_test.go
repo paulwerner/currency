@@ -88,5 +88,33 @@ func TestAmount_Add(t *testing.T) {
 		if !sum.Equals(tc.want) {
 			t.Errorf("expected %v + %v = %v, got %v", tc.a1, tc.a2, tc.want, sum)
 		}
+		if tc.a1.Equals(sum) || tc.a2.Equals(sum) {
+			t.Error("expected amounts to be immutable")
+		}
+	}
+}
+
+func TestAmount_Sub(t *testing.T) {
+	tcs := []struct {
+		a1   *Amount
+		a2   *Amount
+		want *Amount
+	}{
+		{&Amount{1, EUR}, &Amount{1, EUR}, &Amount{0, EUR}},
+		{&Amount{-1, EUR}, &Amount{1, EUR}, &Amount{-2, EUR}},
+		{&Amount{-1, EUR}, &Amount{0, EUR}, &Amount{-1, EUR}},
+		{&Amount{1, EUR}, &Amount{-1, EUR}, &Amount{2, EUR}},
+		{&Amount{-10, EUR}, &Amount{15, EUR}, &Amount{-25, EUR}},
+		{&Amount{-10, USD}, &Amount{15, USD}, &Amount{-25, USD}},
+	}
+
+	for _, tc := range tcs {
+		sum, err := tc.a1.Sub(tc.a2)
+		if err != nil {
+			t.Errorf("error %v + %v: %v", tc.a1, tc.a2, err)
+		}
+		if !sum.Equals(tc.want) {
+			t.Errorf("expected %v - %v = %v, got %v", tc.a1, tc.a2, tc.want, sum)
+		}
 	}
 }

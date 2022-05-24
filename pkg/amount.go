@@ -34,6 +34,8 @@ func (a *Amount) Equals(oa *Amount) bool {
 	return a.val == oa.val && a.currency.Equals(&oa.currency)
 }
 
+// Add creates a new Amount representing the sum with the given amount, 
+// or returns an error if the currencies mismatch. 
 func (a *Amount) Add(oa *Amount) (*Amount, error) {
 	if err := a.assertSameCurrency(oa); err != nil {
 		return nil, err
@@ -41,8 +43,13 @@ func (a *Amount) Add(oa *Amount) (*Amount, error) {
 	return &Amount{val: calc.add(a.val, oa.val), currency: a.currency}, nil
 }
 
+// Sub creates a new Amount representing the difference to the given amount, 
+// or returns an error if the currencies mismatch.
 func (a *Amount) Sub(oa *Amount) (*Amount, error) {
-	panic("not implemented")
+	if err := a.assertSameCurrency(oa); err != nil {
+		return nil, err
+	}
+	return &Amount{val: calc.sub(a.val, oa.val), currency: a.currency}, nil
 }
 
 func (a *Amount) Div(d Value) (*Amount, error) {
