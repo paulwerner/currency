@@ -46,3 +46,22 @@ func TestAmount_NewAmountFailsWithUnrecognizedCurrency(t *testing.T) {
 		}
 	}
 }
+
+func TestAmount_AssertSameCurrency(t *testing.T) {
+	tcs := []struct {
+		a1   Amount
+		a2   Amount
+		want error
+	}{
+		{Amount{1, EUR}, Amount{1, EUR}, nil},
+		{Amount{1, EUR}, Amount{1, USD}, errCurrencyMismatch},
+		{Amount{1, USD}, Amount{1, EUR}, errCurrencyMismatch},
+		{Amount{1, USD}, Amount{1, USD}, nil},
+	}
+
+	for _, tc := range tcs {
+		if err := tc.a1.assertSameCurrency(&tc.a2); err != tc.want {
+			t.Errorf("expected assertion error for %v and %v to be %v, got %v", tc.a1, tc.a2, tc.want, err)
+		}
+	}
+}

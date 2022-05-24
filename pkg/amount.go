@@ -1,5 +1,7 @@
 package money
 
+import "errors"
+
 type Value = int64
 type Amount struct {
 	val      Value
@@ -26,11 +28,11 @@ func (a *Amount) Currency() Currency {
 	return a.currency
 }
 
-func (a *Amount) Add(om *Amount) (*Amount, error) {
+func (a *Amount) Add(oa *Amount) (*Amount, error) {
 	panic("not implemented")
 }
 
-func (a *Amount) Sub(om *Amount) (*Amount, error) {
+func (a *Amount) Sub(oa *Amount) (*Amount, error) {
 	panic("not implemented")
 }
 
@@ -56,4 +58,15 @@ func (a *Amount) Alloc(ps ...Value) ([]*Amount, error) {
 
 func (a *Amount) Display() string {
 	panic("not implemented")
+}
+
+var (
+	errCurrencyMismatch = errors.New("amount: currencies don't match")
+)
+
+func (a *Amount) assertSameCurrency(oa *Amount) error {
+	if !a.currency.Equals(&oa.currency) {
+		return errCurrencyMismatch
+	}
+	return nil
 }
