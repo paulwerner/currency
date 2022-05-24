@@ -2,10 +2,10 @@ package money
 
 // TODO: structure is to be clarified
 type Region struct {
-	language string
-	code     string
-	from     string
-	to       string
+	region string
+	code   string // BCP 47 code, e.g., en, de, fr
+	from   string
+	to     string
 }
 
 // String returns the Region's BCP 47 representations
