@@ -1,13 +1,14 @@
 package money
 
+type Value = int64
 type Amount struct {
-	val      int64
+	val      Value
 	currency Currency
 }
 
 // NewAmount creates a new amount for the given val and ISO 4217 currency code.
-// If returns an error if the ISO code is not supported.
-func NewAmount(val int64, isoCode string) (*Amount, error) {
+// It returns an error if the ISO code is not well-formed or not recognized.
+func NewAmount(val Value, isoCode string) (*Amount, error) {
 	cur, err := ParseISO(isoCode)
 	if err != nil {
 		return nil, err
@@ -15,39 +16,44 @@ func NewAmount(val int64, isoCode string) (*Amount, error) {
 	return &Amount{val: val, currency: cur}, nil
 }
 
+// Value reports the value of the current amount
+func (a *Amount) Value() Value {
+	return a.val
+}
+
 // Currency reports the amount's currency
-func (m *Amount) Currency() Currency {
-	return m.currency
+func (a *Amount) Currency() Currency {
+	return a.currency
 }
 
-func (m *Amount) Add(om *Amount) (*Amount, error) {
+func (a *Amount) Add(om *Amount) (*Amount, error) {
 	panic("not implemented")
 }
 
-func (m *Amount) Sub(om *Amount) (*Amount, error) {
+func (a *Amount) Sub(om *Amount) (*Amount, error) {
 	panic("not implemented")
 }
 
-func (m *Amount) Div(d int64) (*Amount, error) {
+func (a *Amount) Div(d Value) (*Amount, error) {
 	panic("not implemented")
 }
 
-func (m *Amount) Mul(mul int64) (*Amount, error) {
+func (a *Amount) Mul(aul Value) (*Amount, error) {
 	panic("not implemented")
 }
 
-func (m *Amount) Round() (*Amount, error) {
+func (a *Amount) Round() (*Amount, error) {
 	panic("not implemented")
 }
 
-func (m *Amount) Split(p int64) ([]*Amount, error) {
+func (a *Amount) Split(p Value) ([]*Amount, error) {
 	panic("not implemented")
 }
 
-func (m *Amount) Alloc(ps ...int64) ([]*Amount, error) {
+func (a *Amount) Alloc(ps ...Value) ([]*Amount, error) {
 	panic("not implemented")
 }
 
-func (m *Amount) Display() string {
+func (a *Amount) Display() string {
 	panic("not implemented")
 }
