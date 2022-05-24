@@ -1,6 +1,6 @@
 package main
 
-//go:generate go run gen.go
+//go:generate go run gen.go gen_common.go
 
 import (
 	"flag"
@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	outputFile = flag.String("out", "tables.go",
+	outputFile = flag.String("out", "pkg/tables.go",
 		"the file to which the tables should be written")
 )
 
@@ -38,7 +38,7 @@ func main() {
 	w := cw.NewWriter()
 	defer w.WriteGoFile(*outputFile, "money")
 
-	fmt.Fprintln(w, `import "github.com/paulwerner/money/internal/tag"`)
+	fmt.Fprintln(w, `import "github.com/paulwerner/gomoney/internal/tag"`)
 
 	b := builder{}
 	b.genCurrencies(w, db.Supplemental())

@@ -1,4 +1,5 @@
-// to be generated from gen_common.go
+// Code generated. DO NOT EDIT.
+
 package money
 
 import "time"
