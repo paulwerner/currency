@@ -2,7 +2,6 @@ package money
 
 import (
 	"errors"
-	"sort"
 
 	"github.com/paulwerner/gomoney/internal/tag"
 )
@@ -24,7 +23,7 @@ const (
 // scale is the number of fractional decimals and increment is the number of
 // units in terms of 10^(-scale) to which to round to
 func (k Kind) Rounding(cur Currency) (scale, increment int) {
-	info := currency.Elem(int(cur.index))[3]
+	info := currencyData.Elem(int(cur.index))[3]
 	switch k.rounding {
 	case standard:
 		info &= roundMask
@@ -50,7 +49,7 @@ func (c *Currency) String() string {
 	if c.index == 0 {
 		return "XXX"
 	}
-	return currency.Elem(int(c.index))[:3]
+	return currencyData.Elem(int(c.index))[:3]
 }
 
 var (
@@ -58,7 +57,7 @@ var (
 	errValue  = errors.New("currency: tag is not a recognized currency")
 )
 
-// ParseISO parses a 3-letter ISO 4217 currency. It returns an error if s
+// ParseISO parses a 3-letter ISO 4217 currencyData. It returns an error if s
 // is not well-formed or not a not supported currency code
 func ParseISO(s string) (Currency, error) {
 	var buf [4]byte // Take one byte more to detect oversized keys
@@ -66,7 +65,7 @@ func ParseISO(s string) (Currency, error) {
 	if !tag.FixCase("XXX", key) {
 		return Currency{}, errSyntax
 	}
-	if i := currency.Index(key); i >= 0 {
+	if i := currencyData.Index(key); i >= 0 {
 		if i == xxx {
 			return Currency{}, nil
 		}
@@ -83,20 +82,6 @@ func MustParseISO(s string) Currency {
 		panic(err)
 	}
 	return c
-}
-
-// FromRegion reports the currency unit that is currently legal tender in the
-// given region according to CLDR. t wil return false, if region currently does
-// not have a legal tender
-func FromRegion(r Region) (currency Currency, ok bool) {
-	x := regionToCode(r)
-	i := sort.Search(len(regionToCurrency), func(i int) bool {
-		return regionToCurrency[i].region >= x
-	})
-	if i < len(regionToCurrency) && regionToCurrency[i].region == x {
-		return Currency{regionToCurrency[i].code}, true
-	}
-	return Currency{}, false
 }
 
 var (

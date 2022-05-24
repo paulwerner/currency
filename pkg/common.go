@@ -27,13 +27,6 @@ var roundings = [...]roundingType{
 	{2, 50},
 }
 
-func regionToCode(r Region) uint16 {
-	if s := r.String(); len(s) == 2 {
-		return uint16(s[0])<<8 | uint16(s[1])
-	}
-	return 0
-}
-
 func toDate(t time.Time) uint32 {
 	y := t.Year()
 	if y == 1 {
