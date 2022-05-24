@@ -3,7 +3,7 @@ package money
 import (
 	"errors"
 
-	"github.com/paulwerner/gomoney/internal/data"
+	"github.com/paulwerner/gomoney/internal/tag"
 )
 
 // Kind determines the rounding and rendering properties of the currency value
@@ -23,7 +23,7 @@ const (
 // scale is the number of fractional decimals and increment is the number of
 // units in terms of 10^(-scale) to which to round to
 func (k Kind) Rounding(cur Currency) (scale, increment int) {
-	info := currencyData.Elem(int(cur.index))[3]
+	info := currency.Elem(int(cur.index))[3]
 	switch k.rounding {
 	case standard:
 		info &= roundMask
@@ -49,7 +49,7 @@ func (c *Currency) String() string {
 	if c.index == 0 {
 		return "XXX"
 	}
-	return currencyData.Elem(int(c.index))[:3]
+	return currency.Elem(int(c.index))[:3]
 }
 
 var (
@@ -62,10 +62,10 @@ var (
 func ParseISO(s string) (Currency, error) {
 	var buf [4]byte // Take one byte more to detect oversized keys
 	key := buf[:copy(buf[:], s)]
-	if !data.FixCase("XXX", key) {
+	if !tag.FixCase("XXX", key) {
 		return Currency{}, errSyntax
 	}
-	if i := currencyData.Index(key); i >= 0 {
+	if i := currency.Index(key); i >= 0 {
 		if i == xxx {
 			return Currency{}, nil
 		}

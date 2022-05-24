@@ -1,7 +1,7 @@
 // TO BE GENERATED
 package money
 
-import "github.com/paulwerner/gomoney/internal/data"
+import "github.com/paulwerner/gomoney/internal/tag"
 
 // currency indices determined by the gen.constants during generation
 const (
@@ -38,7 +38,7 @@ const (
 	zar = 293
 )
 
-const currencyData data.Index = "" +
+const currency tag.Index = "" +
 	"\x00\x00\x00\x00" +
 	// ...
 	"\ff\xff\xff\xff"
