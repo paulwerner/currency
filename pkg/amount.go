@@ -28,8 +28,17 @@ func (a *Amount) Currency() Currency {
 	return a.currency
 }
 
+// Equals returns true, if the amount value and currency equals,
+// false otherwise
+func (a *Amount) Equals(oa *Amount) bool {
+	return a.val == oa.val && a.currency.Equals(&oa.currency)
+}
+
 func (a *Amount) Add(oa *Amount) (*Amount, error) {
-	panic("not implemented")
+	if err := a.assertSameCurrency(oa); err != nil {
+		return nil, err
+	}
+	return &Amount{val: calc.add(a.val, oa.val), currency: a.currency}, nil
 }
 
 func (a *Amount) Sub(oa *Amount) (*Amount, error) {

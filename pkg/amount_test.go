@@ -49,19 +49,44 @@ func TestAmount_NewAmountFailsWithUnrecognizedCurrency(t *testing.T) {
 
 func TestAmount_AssertSameCurrency(t *testing.T) {
 	tcs := []struct {
-		a1   Amount
-		a2   Amount
+		a1   *Amount
+		a2   *Amount
 		want error
 	}{
-		{Amount{1, EUR}, Amount{1, EUR}, nil},
-		{Amount{1, EUR}, Amount{1, USD}, errCurrencyMismatch},
-		{Amount{1, USD}, Amount{1, EUR}, errCurrencyMismatch},
-		{Amount{1, USD}, Amount{1, USD}, nil},
+		{&Amount{1, EUR}, &Amount{1, EUR}, nil},
+		{&Amount{1, EUR}, &Amount{1, USD}, errCurrencyMismatch},
+		{&Amount{1, USD}, &Amount{1, EUR}, errCurrencyMismatch},
+		{&Amount{1, USD}, &Amount{1, USD}, nil},
 	}
 
 	for _, tc := range tcs {
-		if err := tc.a1.assertSameCurrency(&tc.a2); err != tc.want {
+		if err := tc.a1.assertSameCurrency(tc.a2); err != tc.want {
 			t.Errorf("expected assertion error for %v and %v to be %v, got %v", tc.a1, tc.a2, tc.want, err)
+		}
+	}
+}
+
+func TestAmount_Add(t *testing.T) {
+	tcs := []struct {
+		a1   *Amount
+		a2   *Amount
+		want *Amount
+	}{
+		{&Amount{1, EUR}, &Amount{1, EUR}, &Amount{2, EUR}},
+		{&Amount{-1, EUR}, &Amount{1, EUR}, &Amount{0, EUR}},
+		{&Amount{-1, EUR}, &Amount{0, EUR}, &Amount{-1, EUR}},
+		{&Amount{1, EUR}, &Amount{-1, EUR}, &Amount{0, EUR}},
+		{&Amount{-10, EUR}, &Amount{15, EUR}, &Amount{5, EUR}},
+		{&Amount{-10, USD}, &Amount{15, USD}, &Amount{5, USD}},
+	}
+
+	for _, tc := range tcs {
+		sum, err := tc.a1.Add(tc.a2)
+		if err != nil {
+			t.Errorf("error %v + %v: %v", tc.a1, tc.a2, err)
+		}
+		if !sum.Equals(tc.want) {
+			t.Errorf("expected %v + %v = %v, got %v", tc.a1, tc.a2, tc.want, sum)
 		}
 	}
 }
