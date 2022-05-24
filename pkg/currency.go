@@ -52,9 +52,15 @@ func (c *Currency) String() string {
 	return currency.Elem(int(c.index))[:3]
 }
 
+// Equals returns true, if both currencies have the same index,
+// false otherwise
+func (s *Currency) Equals(os *Currency) (ok bool) {
+	return s.index == os.index
+}
+
 var (
-	errSyntax = errors.New("currency: tag is not well-formed")
-	errValue  = errors.New("currency: tag is not a recognized currency")
+	errSyntax   = errors.New("currency: tag is not well-formed")
+	errValue    = errors.New("currency: tag is not a recognized currency")
 )
 
 // ParseISO parses a 3-letter ISO 4217 currencyData. It returns an error if s
