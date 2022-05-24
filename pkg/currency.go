@@ -2,6 +2,7 @@ package money
 
 import (
 	"errors"
+	"sort"
 
 	"github.com/paulwerner/gomoney/internal/tag"
 )
@@ -82,6 +83,20 @@ func MustParseISO(s string) Currency {
 		panic(err)
 	}
 	return c
+}
+
+// FromRegion reports the currency unit that is currently legal tender in the
+// given region according to CLDR. t wil return false, if region currently does
+// not have a legal tender
+func FromRegion(r Region) (currency Currency, ok bool) {
+	x := regionToCode(r)
+	i := sort.Search(len(regionToCurrency), func(i int) bool {
+		return regionToCurrency[i].region >= x
+	})
+	if i < len(regionToCurrency) && regionToCurrency[i].region == x {
+		return Currency{regionToCurrency[i].code}, true
+	}
+	return Currency{}, false
 }
 
 var (
