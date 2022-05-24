@@ -1,15 +1,13 @@
 package money
 
-type amountValue = int64
-
 type Amount struct {
-	val      amountValue
+	val      int64
 	currency Currency
 }
 
 // NewAmount creates a new amount for the given val and ISO 4217 currency code.
 // If returns an error if the ISO code is not supported.
-func NewAmount(val amountValue, isoCode string) (*Amount, error) {
+func NewAmount(val int64, isoCode string) (*Amount, error) {
 	cur, err := ParseISO(isoCode)
 	if err != nil {
 		return nil, err
