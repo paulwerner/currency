@@ -54,8 +54,8 @@ func TestAmount_AssertSameCurrency(t *testing.T) {
 		want error
 	}{
 		{&Amount{1, EUR}, &Amount{1, EUR}, nil},
-		{&Amount{1, EUR}, &Amount{1, USD}, errCurrencyMismatch},
-		{&Amount{1, USD}, &Amount{1, EUR}, errCurrencyMismatch},
+		{&Amount{1, EUR}, &Amount{1, USD}, ErrCurrencyMismatch},
+		{&Amount{1, USD}, &Amount{1, EUR}, ErrCurrencyMismatch},
 		{&Amount{1, USD}, &Amount{1, USD}, nil},
 	}
 
@@ -83,7 +83,7 @@ func TestAmount_Add(t *testing.T) {
 	for _, tc := range tcs {
 		sum, err := tc.a1.Add(tc.a2)
 		if err != nil {
-			t.Errorf("error %v + %v: %v", tc.a1, tc.a2, err)
+			t.Errorf("unexpected error for %v + %v: %v", tc.a1, tc.a2, err)
 		}
 		if !sum.Equals(tc.want) {
 			t.Errorf("expected %v + %v = %v, got %v", tc.a1, tc.a2, tc.want, sum)
@@ -91,6 +91,12 @@ func TestAmount_Add(t *testing.T) {
 		if tc.a1.Equals(sum) || tc.a2.Equals(sum) {
 			t.Error("expected amounts to be immutable")
 		}
+	}
+
+	a1 := &Amount{val: 2, currency: EUR}
+	a2 := &Amount{val: 2, currency: USD}
+	if _, err := a1.Add(a2); err != ErrCurrencyMismatch {
+		t.Errorf("expected error %v, got %v", ErrCurrencyMismatch, err)
 	}
 }
 
@@ -109,12 +115,21 @@ func TestAmount_Sub(t *testing.T) {
 	}
 
 	for _, tc := range tcs {
-		sum, err := tc.a1.Sub(tc.a2)
+		diff, err := tc.a1.Sub(tc.a2)
 		if err != nil {
-			t.Errorf("error %v + %v: %v", tc.a1, tc.a2, err)
+			t.Errorf("unexpected error for %v + %v: %v", tc.a1, tc.a2, err)
 		}
-		if !sum.Equals(tc.want) {
-			t.Errorf("expected %v - %v = %v, got %v", tc.a1, tc.a2, tc.want, sum)
+		if !diff.Equals(tc.want) {
+			t.Errorf("expected %v - %v = %v, got %v", tc.a1, tc.a2, tc.want, diff)
 		}
+		if tc.a1.Equals(diff) || tc.a2.Equals(diff) {
+			t.Error("expected amounts to be immutable")
+		}
+	}
+
+	a1 := &Amount{val: 2, currency: EUR}
+	a2 := &Amount{val: 2, currency: USD}
+	if _, err := a1.Sub(a2); err != ErrCurrencyMismatch {
+		t.Errorf("expected error %v, got %v", ErrCurrencyMismatch, err)
 	}
 }

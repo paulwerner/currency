@@ -1,6 +1,14 @@
 package money
 
-import "errors"
+import (
+	"errors"
+)
+
+// Errors
+var (
+	ErrCurrencyMismatch = errors.New("amount: currency mismatch")
+	ErrDivisionByZero   = errors.New("amount: division by zero")
+)
 
 type Value = int64
 type Amount struct {
@@ -34,8 +42,8 @@ func (a *Amount) Equals(oa *Amount) bool {
 	return a.val == oa.val && a.currency.Equals(&oa.currency)
 }
 
-// Add creates a new Amount representing the sum with the given amount, 
-// or returns an error if the currencies mismatch. 
+// Add creates a new Amount representing the sum with the given amount,
+// or returns an error if the currencies mismatch.
 func (a *Amount) Add(oa *Amount) (*Amount, error) {
 	if err := a.assertSameCurrency(oa); err != nil {
 		return nil, err
@@ -43,7 +51,7 @@ func (a *Amount) Add(oa *Amount) (*Amount, error) {
 	return &Amount{val: calc.add(a.val, oa.val), currency: a.currency}, nil
 }
 
-// Sub creates a new Amount representing the difference to the given amount, 
+// Sub creates a new Amount representing the difference to the given amount,
 // or returns an error if the currencies mismatch.
 func (a *Amount) Sub(oa *Amount) (*Amount, error) {
 	if err := a.assertSameCurrency(oa); err != nil {
@@ -52,11 +60,7 @@ func (a *Amount) Sub(oa *Amount) (*Amount, error) {
 	return &Amount{val: calc.sub(a.val, oa.val), currency: a.currency}, nil
 }
 
-func (a *Amount) Div(d Value) (*Amount, error) {
-	panic("not implemented")
-}
-
-func (a *Amount) Mul(aul Value) (*Amount, error) {
+func (a *Amount) Mul(mul int) (*Amount) {
 	panic("not implemented")
 }
 
@@ -76,13 +80,9 @@ func (a *Amount) Display() string {
 	panic("not implemented")
 }
 
-var (
-	errCurrencyMismatch = errors.New("amount: currencies don't match")
-)
-
 func (a *Amount) assertSameCurrency(oa *Amount) error {
 	if !a.currency.Equals(&oa.currency) {
-		return errCurrencyMismatch
+		return ErrCurrencyMismatch
 	}
 	return nil
 }
