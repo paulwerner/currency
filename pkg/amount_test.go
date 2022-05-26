@@ -111,13 +111,15 @@ func TestAmount_Sub(t *testing.T) {
 		{&Amount{-10, &USD}, &Amount{15, &USD}, &Amount{-25, &USD}},
 	}
 
-	for _, tc := range tcs {
+	for i, tc := range tcs {
 		diff, err := tc.a1.Sub(tc.a2)
 		if err != nil {
-			t.Errorf("unexpected error for %v + %v: %v", tc.a1, tc.a2, err)
+			t.Errorf("[%v]: unexpected error for %v - %v: %v",
+				i, tc.a1, tc.a2, err)
 		}
 		if !diff.Equals(tc.want) {
-			t.Errorf("expected %v - %v = %v, got %v", tc.a1, tc.a2, tc.want, diff)
+			t.Errorf("[%v]: expected %v - %v = %v, got %v",
+				i, tc.a1, tc.a2, tc.want, diff)
 		}
 	}
 
@@ -125,5 +127,30 @@ func TestAmount_Sub(t *testing.T) {
 	a2 := &Amount{val: 2, currency: &USD}
 	if _, err := a1.Sub(a2); err != ErrCurrencyMismatch {
 		t.Errorf("expected error %v, got %v", ErrCurrencyMismatch, err)
+	}
+}
+
+func TestAmount_Mul(t *testing.T) {
+	tcs := []struct {
+		a    *Amount
+		mul  int64
+		want *Amount
+	}{
+		{&Amount{1, &EUR}, 1, &Amount{1, &EUR}},
+		{&Amount{1, &EUR}, 2, &Amount{2, &EUR}},
+		{&Amount{1, &EUR}, -2, &Amount{-2, &EUR}},
+		{&Amount{-1, &EUR}, -2, &Amount{2, &EUR}},
+	}
+
+	for i, tc := range tcs {
+		prod, err := tc.a.Mul(tc.mul)
+		if err != nil {
+			t.Errorf("[%v]: unexpected error for %v * %v: %v",
+				i, tc.a, tc.mul, err)
+		}
+		if !prod.Equals(tc.want) {
+			t.Errorf("[%v]: expected %v - %v = %v, got %v",
+				i, tc.a, tc.mul, tc.want, prod)
+		}
 	}
 }

@@ -4,9 +4,10 @@ import "errors"
 
 // Errors
 var (
-	ErrCurrencyMismatch = errors.New("amount: currency mismatch")
-	ErrDivisionByZero   = errors.New("amount: division by zero")
-	ErrOverflow         = errors.New("amount: computation overflow")
+	ErrCurrencyMismatch          = errors.New("amount: currency mismatch")
+	ErrDivisionByZero            = errors.New("amount: division by zero")
+	ErrOverflow                  = errors.New("amount: computation overflow")
+	ErrSplitMustBeHigherThanZero = errors.New("amount: split must be higher than zero")
 )
 
 type Value = int64
@@ -47,11 +48,11 @@ func (a *Amount) Add(oa *Amount) (*Amount, error) {
 	if err := a.assertSameCurrency(oa); err != nil {
 		return nil, err
 	}
-	sum := a.val + oa.val
-	if (sum > a.val) == (oa.val > 0) {
-		return &Amount{val: sum, currency: a.currency}, nil
+	sum, ok := calc.add(a.val, oa.val)
+	if !ok {
+		return nil, ErrOverflow
 	}
-	return nil, ErrOverflow
+	return &Amount{val: sum, currency: a.currency}, nil
 }
 
 // Sub creates a new Amount representing the difference to the given amount,
@@ -60,24 +61,19 @@ func (a *Amount) Sub(oa *Amount) (*Amount, error) {
 	if err := a.assertSameCurrency(oa); err != nil {
 		return nil, err
 	}
-	diff := a.val - oa.val
-	if (diff < a.val) == (oa.val > 0) {
-		return &Amount{val: diff, currency: a.currency}, nil
+	diff, ok := calc.sub(a.val, oa.val)
+	if !ok {
+		return nil, ErrOverflow
 	}
-	return nil, ErrOverflow
+	return &Amount{val: diff, currency: a.currency}, nil
 }
 
 func (a *Amount) Mul(mul int64) (*Amount, error) {
-	if a.val == 0 || mul == 0 {
-		return &Amount{val: 0, currency: a.currency}, nil
+	prod, ok := calc.mul(a.val, mul)
+	if !ok {
+		return nil, ErrOverflow
 	}
-	r := a.val * mul
-	if (r < 0) == ((a.val < 0) != (mul < 0)) {
-		if r/mul == a.val {
-			return &Amount{val: r, currency: a.currency}, nil
-		}
-	}
-	return nil, ErrOverflow
+	return &Amount{val: prod, currency: a.currency}, nil
 }
 
 func (a *Amount) Round() (*Amount, error) {
