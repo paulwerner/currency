@@ -10,13 +10,13 @@ var (
 )
 
 type Money struct {
-	amount   *Amount
+	amount   int64
 	currency *Currency
 }
 
 func New(v int64, cur *Currency) (*Money, error) {
 	return &Money{
-		amount:   amount(v),
+		amount:   v,
 		currency: cur,
 	}, nil
 }
@@ -27,7 +27,7 @@ func NewFromISO(v int64, iso string) (*Money, error) {
 		return nil, err
 	}
 	return &Money{
-		amount:   amount(v),
+		amount:   v,
 		currency: cur,
 	}, nil
 }
@@ -37,11 +37,7 @@ func (m *Money) Currency() *Currency {
 }
 
 func (m *Money) Amount() int64 {
-	a := int64(m.amount.val)
-	if m.amount.neg {
-		return -a
-	}
-	return a
+	return m.amount
 }
 
 func (m *Money) SameCurrency(om *Money) bool {
@@ -119,7 +115,7 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 		sum += r
 	}
 
-	var total *Amount
+	var total int64
 	var ms []*Money
 
 	for _, r := range rs {

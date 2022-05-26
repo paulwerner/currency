@@ -4,38 +4,38 @@ type calculator struct{}
 
 var calc = calculator{}
 
-func (c *calculator) add(a, b *Amount) (*Amount, bool) {
+func (c *calculator) add(a, b int64) (int64, bool) {
 	panic("not implemented")
 }
 
-func (c *calculator) sub(a, b *Amount) (*Amount, bool) {
+func (c *calculator) sub(a, b int64) (int64, bool) {
 	panic("not implemented")
 }
 
-func (c *calculator) mul(a *Amount, m int64) (*Amount, bool) {
+func (c *calculator) mul(a int64, m int64) (int64, bool) {
 	panic("not implemented")
 }
 
-func (c *calculator) div(a *Amount, d int64) (*Amount, bool) {
+func (c *calculator) div(a int64, d int64) (int64, bool) {
 	panic("not implemented")
 }
 
-func (c *calculator) mod(a *Amount, d int64) *Amount {
+func (c *calculator) mod(a int64, d int64) int64 {
 	panic("not implemented")
 }
 
-func (c *calculator) alloc(a *Amount, r, s int) (*Amount, bool) {
+func (c *calculator) alloc(a int64, r, s int) (int64, bool) {
 	panic("not implemented")
 }
 
-func (c *calculator) neg(a *Amount) *Amount {
+func (c *calculator) neg(a int64) int64 {
 	panic("not implemented")
 }
 
-func (c *calculator) abs(a *Amount) *Amount {
+func (c *calculator) abs(a int64) int64 {
 	panic("not implemented")
 }
 
-func (c *calculator) round(a *Amount, s, i int) *Amount {
+func (c *calculator) round(a int64, s, i int) int64 {
 	panic("not implemented")
 }
