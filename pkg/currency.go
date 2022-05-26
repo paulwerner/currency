@@ -59,13 +59,13 @@ func (s *Currency) Equals(os *Currency) (ok bool) {
 }
 
 var (
-	errSyntax   = errors.New("currency: tag is not well-formed")
-	errValue    = errors.New("currency: tag is not a recognized currency")
+	errSyntax = errors.New("currency: tag is not well-formed")
+	errValue  = errors.New("currency: tag is not a recognized currency")
 )
 
-// ParseISO parses a 3-letter ISO 4217 currencyData. It returns an error if s
+// CurrencyFromISO parses a 3-letter ISO 4217 currencyData. It returns an error if s
 // is not well-formed or not a not supported currency code
-func ParseISO(s string) (*Currency, error) {
+func CurrencyFromISO(s string) (*Currency, error) {
 	var buf [4]byte // Take one byte more to detect oversized keys
 	key := buf[:copy(buf[:], s)]
 	if !tag.FixCase("XXX", key) {
@@ -80,10 +80,10 @@ func ParseISO(s string) (*Currency, error) {
 	return &Currency{}, errValue
 }
 
-// MustParseISO is like ParseISO, but panics if the given unit
+// MustCurrencyFromISO is like ParseISO, but panics if the given unit
 // cannot be parsed. It simplifies safe initialization of Currency values
-func MustParseISO(s string) *Currency {
-	c, err := ParseISO(s)
+func MustCurrencyFromISO(s string) *Currency {
+	c, err := CurrencyFromISO(s)
 	if err != nil {
 		panic(err)
 	}

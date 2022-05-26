@@ -13,7 +13,7 @@ func New(v int64, cur *Currency) (*Money, error) {
 }
 
 func NewFromISO(v int64, iso string) (*Money, error) {
-	cur, err := ParseISO(iso)
+	cur, err := CurrencyFromISO(iso)
 	if err != nil {
 		return nil, err
 	}
