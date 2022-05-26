@@ -2,7 +2,7 @@ package money
 
 import "testing"
 
-func TestCalculator_Add(t *testing.T) {
+func TestCalculator_add(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
 		a    Value
@@ -14,9 +14,10 @@ func TestCalculator_Add(t *testing.T) {
 		{-1, -2, -3},
 	}
 
-	for _, tc := range tcs {
-		if sum := calc.add(tc.a, tc.b); sum != tc.want {
-			t.Errorf("expected %d + %d to be %d, got %d", tc.a, tc.b, tc.want, sum)
+	for i, tc := range tcs {
+		if sum, ok := calc.add(tc.a, tc.b); !ok || sum != tc.want {
+			t.Errorf("[%v]: expected %d + %d to be %d, got %d",
+				i, tc.a, tc.b, tc.want, sum)
 		}
 	}
 }
@@ -33,9 +34,10 @@ func TestCalculator_sub(t *testing.T) {
 		{10, -2, 12},
 	}
 
-	for _, tc := range tcs {
-		if diff := calc.sub(tc.a, tc.b); diff != tc.want {
-			t.Errorf("expected %d - %d to be %d, got %d", tc.a, tc.b, tc.want, diff)
+	for i, tc := range tcs {
+		if diff, ok := calc.sub(tc.a, tc.b); !ok || diff != tc.want {
+			t.Errorf("[%v]: expected %d - %d to be %d, got %d",
+				i, tc.a, tc.b, tc.want, diff)
 		}
 	}
 }
@@ -53,9 +55,10 @@ func TestCalculator_mul(t *testing.T) {
 		{10, -2, -20},
 	}
 
-	for _, tc := range tcs {
-		if prod := calc.mul(tc.a, tc.b); prod != tc.want {
-			t.Errorf("expected %d * %d to be %d, got %d", tc.a, tc.b, tc.want, prod)
+	for i, tc := range tcs {
+		if prod, ok := calc.mul(tc.a, tc.b); !ok || prod != tc.want {
+			t.Errorf("[%v]: expected %d * %d to be %d, got %d",
+				i, tc.a, tc.b, tc.want, prod)
 		}
 	}
 }
@@ -73,9 +76,10 @@ func TestCalculator_div(t *testing.T) {
 		{-11, 2, -5},
 	}
 
-	for _, tc := range tcs {
-		if quot := calc.div(tc.a, tc.b); quot != tc.want {
-			t.Errorf("expected %d / %d to be %d, got %d", tc.a, tc.b, tc.want, quot)
+	for i, tc := range tcs {
+		if quot, ok := calc.div(tc.a, tc.b); !ok || quot != tc.want {
+			t.Errorf("[%v]: expected %d / %d to be %d, got %d",
+				i, tc.a, tc.b, tc.want, quot)
 		}
 	}
 }
@@ -96,10 +100,10 @@ func TestCalculator_mod(t *testing.T) {
 		{100, 51, 49},
 	}
 
-	for _, tc := range tcs {
-		if mod := calc.mod(tc.a, tc.d); mod != tc.want {
-			t.Errorf("expected %d mod %d to be %d, got %d",
-				tc.a, tc.d, tc.want, mod)
+	for i, tc := range tcs {
+		if mod, ok := calc.mod(tc.a, tc.d); !ok || mod != tc.want {
+			t.Errorf("[%v]: expected %d mod %d to be %d, got %d",
+				i, tc.a, tc.d, tc.want, mod)
 		}
 	}
 }
@@ -108,8 +112,8 @@ func TestCalculator_alloc(t *testing.T) {
 	calc := calculator{}
 	tcs := []struct {
 		a    Value
-		r    int
-		s    int
+		r    int64
+		s    int64
 		want Value
 	}{
 		{100, 10, 50, 20},
@@ -120,10 +124,10 @@ func TestCalculator_alloc(t *testing.T) {
 		{100, 2, 1, 100},
 	}
 
-	for _, tc := range tcs {
-		if alloc := calc.alloc(tc.a, tc.r, tc.s); alloc != tc.want {
-			t.Errorf("expected %d allocated in %d ratios with sum %d to be %d, got %d",
-				tc.a, tc.r, tc.s, tc.want, alloc)
+	for i, tc := range tcs {
+		if alloc, ok := calc.alloc(tc.a, tc.r, tc.s); !ok || alloc != tc.want {
+			t.Errorf("[%v]: expected %d allocated in %d ratios with sum %d to be %d, got %d, ok %v",
+				i, tc.a, tc.r, tc.s, tc.want, alloc, ok)
 		}
 	}
 }
@@ -138,9 +142,10 @@ func TestCalculator_abs(t *testing.T) {
 		{-100, 100},
 	}
 
-	for _, tc := range tcs {
+	for i, tc := range tcs {
 		if abs := calc.abs(tc.a); abs != tc.want {
-			t.Errorf("expected absolute of %d to be %d, got %d", tc.a, tc.want, abs)
+			t.Errorf("[%v]: expected absolute of %d to be %d, got %d",
+				i, tc.a, tc.want, abs)
 		}
 	}
 }
@@ -155,9 +160,10 @@ func TestCalculator_neg(t *testing.T) {
 		{-100, -100},
 	}
 
-	for _, tc := range tcs {
+	for i, tc := range tcs {
 		if neg := calc.neg(tc.a); neg != tc.want {
-			t.Errorf("expected negative of %d to be %d, got %d", tc.a, tc.want, neg)
+			t.Errorf("[%v]: expected negative of %d to be %d, got %d",
+				i, tc.a, tc.want, neg)
 		}
 	}
 }
@@ -175,10 +181,10 @@ func TestCalculator_round(t *testing.T) {
 		{1, 0, 1},
 	}
 
-	for _, tc := range tcs {
-		if round := calc.round(tc.a, tc.e); round != tc.want {
-			t.Errorf("expected round of %d with %d decimal places to be %d, got %d",
-				tc.a, tc.e, tc.want, round)
+	for i, tc := range tcs {
+		if round, ok := calc.round(tc.a, tc.e); !ok || round != tc.want {
+			t.Errorf("[%v]: expected round of %d with %d decimal places to be %d, got %d",
+				i, tc.a, tc.e, tc.want, round)
 		}
 	}
 }
