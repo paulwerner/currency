@@ -5,18 +5,18 @@ type calculator struct{}
 var calc = calculator{}
 
 const (
-	minInt = -1 << 63
-	maxInt = 1<<63 - 1
+	min = -1 << 63
+	max = 1<<63 - 1
 )
 
 func (c *calculator) add(a, b int64) (int64, bool) {
 	if b > 0 {
-		if a > maxInt-b {
+		if a > max-b {
 			return 0, false
 		}
 	} else {
 		if b < 0 {
-			if a < minInt+b {
+			if a < min+b {
 				return 0, false
 			}
 		}
@@ -25,7 +25,16 @@ func (c *calculator) add(a, b int64) (int64, bool) {
 }
 
 func (c *calculator) sub(a, b int64) (int64, bool) {
-	panic("not implemented")
+	if b > 0 {
+		if a < min+b {
+			return 0, false
+		}
+	} else {
+		if a > max+b {
+			return 0, false
+		}
+	}
+	return a - b, true
 }
 
 func (c *calculator) mul(a int64, m int64) (int64, bool) {
