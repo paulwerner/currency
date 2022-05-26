@@ -65,24 +65,24 @@ var (
 
 // ParseISO parses a 3-letter ISO 4217 currencyData. It returns an error if s
 // is not well-formed or not a not supported currency code
-func ParseISO(s string) (Currency, error) {
+func ParseISO(s string) (*Currency, error) {
 	var buf [4]byte // Take one byte more to detect oversized keys
 	key := buf[:copy(buf[:], s)]
 	if !tag.FixCase("XXX", key) {
-		return Currency{}, errSyntax
+		return &Currency{}, errSyntax
 	}
 	if i := currency.Index(key); i >= 0 {
 		if i == xxx {
-			return Currency{}, nil
+			return &Currency{}, nil
 		}
-		return Currency{uint16(i)}, nil
+		return &Currency{uint16(i)}, nil
 	}
-	return Currency{}, errValue
+	return &Currency{}, errValue
 }
 
 // MustParseISO is like ParseISO, but panics if the given unit
 // cannot be parsed. It simplifies safe initialization of Currency values
-func MustParseISO(s string) Currency {
+func MustParseISO(s string) *Currency {
 	c, err := ParseISO(s)
 	if err != nil {
 		panic(err)
