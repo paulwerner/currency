@@ -49,7 +49,7 @@ func (m *Money) Add(om *Money) (*Money, error) {
 		return nil, err
 	}
 
-	z, ok := calc.add(m.amount, om.amount)
+	z, ok := add(m.amount, om.amount)
 	if !ok {
 		return nil, ErrOperationOverflow
 	}
@@ -64,7 +64,7 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 		return nil, err
 	}
 
-	z, ok := calc.sub(m.amount, om.amount)
+	z, ok := sub(m.amount, om.amount)
 	if !ok {
 		return nil, ErrOperationOverflow
 	}
@@ -74,8 +74,8 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 	}, nil
 }
 
-func (m *Money) Mul(mul int64) (*Money, error) {
-	z, ok := calc.mul(m.amount, mul)
+func (m *Money) Mul(n int64) (*Money, error) {
+	z, ok := mul(m.amount, n)
 	if !ok {
 		return nil, ErrOperationOverflow
 	}
@@ -90,7 +90,7 @@ func (m *Money) Split(n int64) ([]*Money, *Money, error) {
 		return nil, nil, ErrSplitNegative
 	}
 
-	z, ok := calc.div(m.amount, n)
+	z, ok := div(m.amount, n)
 	if !ok {
 		return nil, nil, ErrOperationOverflow
 	}
@@ -100,7 +100,7 @@ func (m *Money) Split(n int64) ([]*Money, *Money, error) {
 		ms[i] = &Money{amount: z, currency: m.currency}
 	}
 
-	r := calc.mod(m.amount, n)
+	r := mod(m.amount, n)
 	return ms, &Money{amount: r, currency: m.currency}, nil
 }
 
@@ -119,7 +119,7 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 	var ms []*Money
 
 	for _, r := range rs {
-		a, ok := calc.alloc(m.amount, r, sum)
+		a, ok := alloc(m.amount, r, sum)
 		if !ok {
 			return nil, nil, ErrOperationOverflow
 		}
@@ -128,11 +128,11 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 			currency: m.currency,
 		}
 		ms = append(ms, party)
-		total, ok = calc.add(total, m.amount)
+		total, ok = add(total, m.amount)
 	}
 
 	// leftover
-	lo, ok := calc.sub(m.amount, total)
+	lo, ok := sub(m.amount, total)
 	if !ok {
 		return nil, nil, ErrOperationOverflow
 	}

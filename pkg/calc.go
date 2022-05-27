@@ -1,15 +1,24 @@
+/*
+maxInt64:        9223372036854775807
+maxInt64:        111111111111111111111111111111111111111111111111111111111111111
+minInt64:        -9223372036854775808
+minInt64:        -1000000000000000000000000000000000000000000000000000000000000000
+maxUint64:       9223372036854775807
+maxUint64:       111111111111111111111111111111111111111111111111111111111111111
+minUint64:       9223372036854775808
+minUint64:       1000000000000000000000000000000000000000000000000000000000000000
+
+valUint64:       9223372036854775808
+valUint64:       1000000000000000000000000000000000000000000000000000000000000000
+*/
 package money
-
-type calculator struct{}
-
-var calc = calculator{}
 
 const (
 	min int64 = -1 << 63
 	max int64 = 1<<63 - 1
 )
 
-func (c *calculator) add(x, y *Amount) (*Amount, bool) {
+func add(x, y *Amount) (*Amount, bool) {
 	var r Amount
 	neg := x.neg
 	if x.neg == y.neg {
@@ -48,7 +57,7 @@ func _add(x, y value) (sum value, ok bool) {
 	return
 }
 
-func (c *calculator) sub(x, y *Amount) (*Amount, bool) {
+func sub(x, y *Amount) (*Amount, bool) {
 	var r Amount
 	neg := x.neg
 	if x.neg != y.neg {
@@ -87,7 +96,7 @@ func _sub(a, b value) (diff value, ok bool) {
 	return
 }
 
-func (c *calculator) mul(x *Amount, m int64) (*Amount, bool) {
+func mul(x *Amount, m int64) (*Amount, bool) {
 	if x.val == 0 || m == 0 {
 		return &Amount{val: 0, neg: false}, true
 	}
@@ -122,23 +131,23 @@ func (c *calculator) mul(x *Amount, m int64) (*Amount, bool) {
 	return &Amount{val: value(val), neg: neg}, true
 }
 
-func (c *calculator) div(a *Amount, d int64) (*Amount, bool) {
+func div(a *Amount, d int64) (*Amount, bool) {
 	panic("not implemented")
 }
 
-func (c *calculator) mod(a *Amount, d int64) *Amount {
+func mod(a *Amount, d int64) *Amount {
 	panic("not implemented")
 }
 
-func (c *calculator) alloc(a *Amount, r, s int) (*Amount, bool) {
+func alloc(a *Amount, r, s int) (*Amount, bool) {
 	panic("not implemented")
 }
 
-func (c *calculator) neg(a *Amount) *Amount {
+func neg(a *Amount) *Amount {
 	panic("not implemented")
 }
 
-func (c *calculator) abs(a *Amount) *Amount {
+func abs(a *Amount) *Amount {
 	panic("not implemented")
 }
 
@@ -149,6 +158,6 @@ func _abs(x int64) int64 {
 	return x
 }
 
-func (c *calculator) round(a *Amount, s, i int) *Amount {
+func round(a *Amount, s, i int) *Amount {
 	panic("not implemented")
 }
