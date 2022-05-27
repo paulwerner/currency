@@ -1,6 +1,6 @@
 package money
 
-type value uint64
+type value uint
 
 func (v value) cmp(ov value) int {
 	if v < ov {
