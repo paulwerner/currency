@@ -5,8 +5,8 @@ type calculator struct{}
 var calc = calculator{}
 
 const (
-	min = -1 << 63
-	max = 1<<63 - 1
+	min int64 = -1 << 63
+	max int64 = 1<<63 - 1
 )
 
 func (c *calculator) add(x, y *Amount) (*Amount, bool) {
@@ -87,15 +87,46 @@ func _sub(a, b value) (diff value, ok bool) {
 	return
 }
 
-func (c *calculator) mul(x *Amount, m int) (*Amount, bool) {
+func (c *calculator) mul(x *Amount, m int64) (*Amount, bool) {
+	if x.val == 0 || m == 0 {
+		return &Amount{val: 0, neg: false}, true
+	}
+
+	neg := x.neg
+	if !x.neg { // x is positive
+		if m > 0 { // x and m is positive
+			if x.Int64() > max/m {
+				return nil, false
+			}
+			neg = false
+		} else { // x positive m negative
+			if m < (min / x.Int64()) {
+				return nil, false
+			}
+			neg = true
+		}
+	} else { // x is negative
+		if m > 0 { // x is negative m is positive
+			if x.Int64() < (min / m) {
+				return nil, false
+			}
+			neg = true
+		} else { // x and m negative
+			if x.val != 0 && m < (max/x.Int64()) {
+				return nil, false
+			}
+			neg = false
+		}
+	}
+	val := _abs(x.Int64() * m)
+	return &Amount{val: value(val), neg: neg}, true
+}
+
+func (c *calculator) div(a *Amount, d int64) (*Amount, bool) {
 	panic("not implemented")
 }
 
-func (c *calculator) div(a *Amount, d int) (*Amount, bool) {
-	panic("not implemented")
-}
-
-func (c *calculator) mod(a *Amount, d int) *Amount {
+func (c *calculator) mod(a *Amount, d int64) *Amount {
 	panic("not implemented")
 }
 
@@ -109,6 +140,13 @@ func (c *calculator) neg(a *Amount) *Amount {
 
 func (c *calculator) abs(a *Amount) *Amount {
 	panic("not implemented")
+}
+
+func _abs(x int64) int64 {
+	if x < 0 {
+		return -x
+	}
+	return x
 }
 
 func (c *calculator) round(a *Amount, s, i int) *Amount {

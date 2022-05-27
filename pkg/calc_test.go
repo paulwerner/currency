@@ -1,9 +1,7 @@
 package money
 
 import (
-	"fmt"
 	"math"
-	"math/bits"
 	"testing"
 )
 
@@ -97,13 +95,3 @@ func TestCalc_subUnderflow(t *testing.T) {
 	}
 }
 
-func TestFoo(t *testing.T) {
-	fmt.Println(max)
-	fmt.Println(max / 2)
-	hi, lo := bits.Mul64(max/2+1, 5)
-	fmt.Println(hi)
-	fmt.Println(lo)
-	fmt.Println(hi == 0 && lo < max)
-	fmt.Println((int64(lo)))
-
-}

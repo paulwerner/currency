@@ -17,7 +17,7 @@ type Amount struct {
 	neg bool
 }
 
-func (a *Amount) valueInt64() int64 {
+func (a *Amount) Int64() int64 {
 	return int64(a.val)
 }
 
