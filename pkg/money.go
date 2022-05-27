@@ -74,7 +74,7 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 	}, nil
 }
 
-func (m *Money) Mul(n int64) (*Money, error) {
+func (m *Money) Mul(n int) (*Money, error) {
 	z, ok := mul(m.amount, n)
 	if !ok {
 		return nil, ErrOperationOverflow
@@ -85,7 +85,7 @@ func (m *Money) Mul(n int64) (*Money, error) {
 	}, nil
 }
 
-func (m *Money) Split(n int64) ([]*Money, *Money, error) {
+func (m *Money) Split(n int) ([]*Money, *Money, error) {
 	if n <= 0 {
 		return nil, nil, ErrSplitNegative
 	}
@@ -96,7 +96,7 @@ func (m *Money) Split(n int64) ([]*Money, *Money, error) {
 	}
 
 	ms := make([]*Money, n)
-	for i := int64(0); i < n; i++ {
+	for i := 0; i < n; i++ {
 		ms[i] = &Money{amount: z, currency: m.currency}
 	}
 
