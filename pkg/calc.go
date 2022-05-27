@@ -150,13 +150,15 @@ func _abs(x int) int {
 func round(a *Amount, s, i int) *Amount {
 	panic("not implemented")
 }
-func _is64() bool {
-	return intSize == 64
-}
 
 /*
 	PRIVATE
 */
+
+func _is64() bool {
+	return intSize == 64
+}
+
 func _bound(neg bool) (bound uint) {
 	if neg {
 		bound = loBound
@@ -168,13 +170,13 @@ func _bound(neg bool) (bound uint) {
 
 func _add(x, y value) (sum value, ok bool) {
 	sum = x + y
-	ok = ((x&y)|(x|y)&^sum)>>(63) == 0
+	ok = ((x&y)|(x|y)&^sum)>>(intSize-1) == 0
 	return
 }
 
 func _sub(a, b value) (diff value, ok bool) {
 	diff = a - b
-	ok = ((^a&b)|(^(a^b)&diff))>>(63) == 0
+	ok = ((^a&b)|(^(a^b)&diff))>>(intSize-1) == 0
 	return
 }
 
