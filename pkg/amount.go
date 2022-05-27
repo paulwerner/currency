@@ -1,10 +1,22 @@
 package money
 
+type value uint64
+
+func (v value) cmp(ov value) int {
+	if v < ov {
+		return -1
+	}
+	if v > 0 {
+		return 1
+	}
+	return 0
+}
+
 type Amount struct {
-	val uint64
+	val value
 	neg bool
 }
 
 func amount(v int64) *Amount {
-	return &Amount{val: uint64(v), neg: v < 0}
+	return &Amount{val: value(v), neg: v < 0}
 }
