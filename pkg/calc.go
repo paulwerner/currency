@@ -1,13 +1,16 @@
 package money
 
 const (
-	intSize = 32 << (^uint(0) >> 63) // 32 or 64
+	// 32 or 64
+	intSize = 32 << (^uint(0) >> 63)
 
-	minInt = -1 << (intSize - 1)
-	maxInt = 1<<(intSize-1) - 1
+	// 32Bit: 2147483648
+	// 64bit: 9223372036854775808
+	loBound uint = -(-1 << (intSize - 1))
 
-	loBound uint = -(minInt) // 9223372036854775808
-	hiBound uint = maxInt    // 9223372036854775807
+	// 32 bit: 2147483647
+	// 64bit: 9223372036854775807
+	hiBound uint = 1<<(intSize-1) - 1
 )
 
 func add(x, y *Amount) (*Amount, bool) {
@@ -117,46 +120,6 @@ func mul(x *Amount, m int) (*Amount, bool) {
 	return &Amount{val: value(val), neg: neg}, true
 }
 
-func _bound(neg bool) (bound uint) {
-	if neg {
-		bound = loBound
-	} else {
-		bound = hiBound
-	}
-	return
-}
-
-func _add(x, y value) (sum value, ok bool) {
-	sum = x + y
-	ok = ((x&y)|(x|y)&^sum)>>63 == 0
-	return
-}
-
-func _sub(a, b value) (diff value, ok bool) {
-	diff = a - b
-	ok = ((^a&b)|(^(a^b)&diff))>>63 == 0
-	return
-}
-
-func _mul(x, y, bound uint) (p value, ok bool) {
-	const mask32 = 1<<32 - 1
-	x0 := x & mask32
-	x1 := x >> 32
-	y0 := y & mask32
-	y1 := y >> 32
-	w0 := x0 * y0
-	t := x1*y0 + w0>>32
-	w1 := t & mask32
-	w2 := t >> 32
-	w1 += x0 * y1
-	hi := x1*y1 + w2 + w1>>32
-	lo := x * y
-
-	p = lo
-	ok = p <= bound && hi == 0
-	return
-}
-
 func div(a *Amount, d int) (*Amount, bool) {
 	panic("not implemented")
 }
@@ -186,4 +149,66 @@ func _abs(x int) int {
 
 func round(a *Amount, s, i int) *Amount {
 	panic("not implemented")
+}
+func _is64() bool {
+	return intSize == 64
+}
+
+/*
+	PRIVATE
+*/
+func _bound(neg bool) (bound uint) {
+	if neg {
+		bound = loBound
+	} else {
+		bound = hiBound
+	}
+	return
+}
+
+func _add(x, y value) (sum value, ok bool) {
+	sum = x + y
+	ok = ((x&y)|(x|y)&^sum)>>(63) == 0
+	return
+}
+
+func _sub(a, b value) (diff value, ok bool) {
+	diff = a - b
+	ok = ((^a&b)|(^(a^b)&diff))>>(63) == 0
+	return
+}
+
+func _mul(x, y, bound uint) (p value, ok bool) {
+	if _is64() {
+		p, ok = _mul64(x, y, bound)
+	}
+	p, ok = _mul32(x, y, bound)
+	return
+}
+
+func _mul64(x value, y, bound uint) (p value, ok bool) {
+	const mask32 = 1<<32 - 1
+	x0 := x & mask32
+	x1 := x >> 32
+	y0 := y & mask32
+	y1 := y >> 32
+	w0 := x0 * y0
+	t := x1*y0 + w0>>32
+	w1 := t & mask32
+	w2 := t >> 32
+	w1 += x0 * y1
+	hi := x1*y1 + w2 + w1>>32
+	lo := x * y
+
+	p = lo
+	ok = p <= bound && hi == 0
+	return
+}
+
+func _mul32(x value, y, bound uint) (p value, ok bool) {
+	tmp := uint64(x) * uint64(y)
+	hi, lo := uint32(tmp>>32), uint32(tmp)
+	p = value(lo)
+	ok = p <= bound && hi == 0
+	return
 }
