@@ -182,13 +182,14 @@ func _sub(a, b value) (diff value, ok bool) {
 
 func _mul(x, y, bound uint) (p value, ok bool) {
 	if _is64() {
-		p, ok = _mul64(x, y, bound)
+		p, ok = _mul64(uint64(x), uint64(y), uint64(bound))
+	} else {
+		p, ok = _mul32(uint32(x), uint32(y), uint32(bound))
 	}
-	p, ok = _mul32(x, y, bound)
 	return
 }
 
-func _mul64(x value, y, bound uint) (p value, ok bool) {
+func _mul64(x, y, bound uint64) (p value, ok bool) {
 	const mask32 = 1<<32 - 1
 	x0 := x & mask32
 	x1 := x >> 32
@@ -202,15 +203,15 @@ func _mul64(x value, y, bound uint) (p value, ok bool) {
 	hi := x1*y1 + w2 + w1>>32
 	lo := x * y
 
-	p = lo
-	ok = p <= bound && hi == 0
+	p = value(lo)
+	ok = lo <= bound && hi == 0
 	return
 }
 
-func _mul32(x value, y, bound uint) (p value, ok bool) {
+func _mul32(x, y, bound uint32) (p value, ok bool) {
 	tmp := uint64(x) * uint64(y)
 	hi, lo := uint32(tmp>>32), uint32(tmp)
 	p = value(lo)
-	ok = p <= bound && hi == 0
+	ok = lo <= bound && hi == 0
 	return
 }
