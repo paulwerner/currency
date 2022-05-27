@@ -124,32 +124,46 @@ func mul(x *Amount, m int) (*Amount, bool) {
 	return &Amount{val: value(val), neg: neg}, true
 }
 
-// x / y 	== 	4 /	 2 	== 	2
-// -x / y 	== -4 /	 2 	== -2
-// x / -y 	== 	4 /	-2 	== -2
-// -x / -y 	== -4 /	-2 	== 	2
-func div(a *Amount, d int) (*Amount, bool) {
+/*
+	quotient:
+	 x / y 	== 	4 /	 2 	== 	2
+ 	-x / y 	== -4 /	 2 	== -2
+ 	x / -y 	== 	4 /	-2 	== -2
+ 	-x / -y == -4 /	-2 	== 	2
+ 	sign determined by -x || -y
+ 	
+	remainder:
+ 	x % y == 5 % 2 == 1
+ 	x % y == -5 % 2 == -1
+ 	x % y == 5 % -2 == 1
+ 	x % y == -5 % -2 == -1
+ 	sign determined by sign of x
+*/
+func div(a *Amount, d int) (*Amount, *Amount, bool) {
 	// check division by zero and overflow
 	if d == 0 || (a.neg && a.val == loBound && d == -1) {
-		return nil, false
+		return nil, nil, false
 	}
 	neg := a.neg || d < 0
 	absd := _abs(d)
 	if _is32() {
-		q := _div32(uint32(a.val), uint32(absd))
-		return &Amount{val: q, neg: neg}, true
+		uval := uint32(a.val)
+		uabsd := uint32(absd)
+		q := uval / uabsd
+		r := uval % uabsd
+		return &Amount{val: value(q), neg: neg},
+			&Amount{val: value(r), neg: a.neg},
+			true
 	}
-	q := _div64(uint64(a.val), uint64(absd))
-	return &Amount{val: q, neg: neg}, true
+	uval := uint64(a.val)
+	uabsd := uint64(absd)
+	q := uval / uabsd
+	r := uval % uabsd
+	return &Amount{val: value(q), neg: neg},
+		&Amount{val: value(r), neg: a.neg},
+		true
 }
 
-func _div64(x, y uint64) value {
-	panic("not implemented")
-}
-
-func _div32(x, y uint32) value {
-	return value(x / y)
-}
 func mod(a *Amount, d int) *Amount {
 	panic("not implemented")
 }

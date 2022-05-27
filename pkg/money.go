@@ -90,7 +90,7 @@ func (m *Money) Split(n int) ([]*Money, *Money, error) {
 		return nil, nil, ErrSplitNegative
 	}
 
-	z, ok := div(m.amount, n)
+	z, r, ok := div(m.amount, n)
 	if !ok {
 		return nil, nil, ErrOperationOverflow
 	}
@@ -100,7 +100,6 @@ func (m *Money) Split(n int) ([]*Money, *Money, error) {
 		ms[i] = &Money{amount: z, currency: m.currency}
 	}
 
-	r := mod(m.amount, n)
 	return ms, &Money{amount: r, currency: m.currency}, nil
 }
 
