@@ -155,8 +155,8 @@ func round(a *Amount, s, i int) *Amount {
 	PRIVATE
 */
 
-func _is64() bool {
-	return intSize == 64
+func _is32() bool {
+	return intSize == 32
 }
 
 func _bound(neg bool) (bound uint) {
@@ -181,11 +181,19 @@ func _sub(a, b value) (diff value, ok bool) {
 }
 
 func _mul(x, y, bound uint) (p value, ok bool) {
-	if _is64() {
-		p, ok = _mul64(uint64(x), uint64(y), uint64(bound))
-	} else {
+	if _is32() {
 		p, ok = _mul32(uint32(x), uint32(y), uint32(bound))
+	} else {
+		p, ok = _mul64(uint64(x), uint64(y), uint64(bound))
 	}
+	return
+}
+
+func _mul32(x, y, bound uint32) (p value, ok bool) {
+	tmp := uint64(x) * uint64(y)
+	hi, lo := uint32(tmp>>32), uint32(tmp)
+	p = value(lo)
+	ok = lo <= bound && hi == 0
 	return
 }
 
@@ -203,14 +211,6 @@ func _mul64(x, y, bound uint64) (p value, ok bool) {
 	hi := x1*y1 + w2 + w1>>32
 	lo := x * y
 
-	p = value(lo)
-	ok = lo <= bound && hi == 0
-	return
-}
-
-func _mul32(x, y, bound uint32) (p value, ok bool) {
-	tmp := uint64(x) * uint64(y)
-	hi, lo := uint32(tmp>>32), uint32(tmp)
 	p = value(lo)
 	ok = lo <= bound && hi == 0
 	return
