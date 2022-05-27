@@ -12,7 +12,7 @@ func (a *Amount) Int64() int64 {
 }
 
 func amount(v int) *Amount {
-	return &Amount{val: value(v), neg: v < 0}
+	return &Amount{val: value(_abs(v)), neg: v < 0}
 }
 
 func (a *Amount) cmpByValue(oa *Amount) int {
