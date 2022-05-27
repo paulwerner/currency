@@ -1,16 +1,6 @@
 package money
 
-type value uint
-
-func (v value) cmp(ov value) int {
-	if v < ov {
-		return -1
-	}
-	if v > 0 {
-		return 1
-	}
-	return 0
-}
+type value = uint
 
 type Amount struct {
 	val value
@@ -23,4 +13,14 @@ func (a *Amount) Int64() int64 {
 
 func amount(v int) *Amount {
 	return &Amount{val: value(v), neg: v < 0}
+}
+
+func (a *Amount) cmpByValue(oa *Amount) int {
+	if a.val < oa.val {
+		return -1
+	}
+	if a.val > oa.val {
+		return 1
+	}
+	return 0
 }
