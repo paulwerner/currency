@@ -87,7 +87,7 @@ func _sub(a, b value) (diff value, ok bool) {
 	return
 }
 
-func (c *calculator) mul(a *Amount, m int) (*Amount, bool) {
+func (c *calculator) mul(x *Amount, m int) (*Amount, bool) {
 	panic("not implemented")
 }
 
