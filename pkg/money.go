@@ -10,13 +10,13 @@ var (
 )
 
 type Money struct {
-	amount   int64
+	amount   *Amount
 	currency *Currency
 }
 
 func New(v int64, cur *Currency) (*Money, error) {
 	return &Money{
-		amount:   v,
+		amount:   amount(v),
 		currency: cur,
 	}, nil
 }
@@ -27,7 +27,7 @@ func NewFromISO(v int64, iso string) (*Money, error) {
 		return nil, err
 	}
 	return &Money{
-		amount:   v,
+		amount:   amount(v),
 		currency: cur,
 	}, nil
 }
@@ -36,7 +36,7 @@ func (m *Money) Currency() *Currency {
 	return m.currency
 }
 
-func (m *Money) Amount() int64 {
+func (m *Money) Amount() *Amount {
 	return m.amount
 }
 
@@ -74,7 +74,7 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 	}, nil
 }
 
-func (m *Money) Mul(mul int64) (*Money, error) {
+func (m *Money) Mul(mul int) (*Money, error) {
 	z, ok := calc.mul(m.amount, mul)
 	if !ok {
 		return nil, ErrOperationOverflow
@@ -85,7 +85,7 @@ func (m *Money) Mul(mul int64) (*Money, error) {
 	}, nil
 }
 
-func (m *Money) Split(n int64) ([]*Money, *Money, error) {
+func (m *Money) Split(n int) ([]*Money, *Money, error) {
 	if n <= 0 {
 		return nil, nil, ErrSplitNegative
 	}
@@ -96,7 +96,7 @@ func (m *Money) Split(n int64) ([]*Money, *Money, error) {
 	}
 
 	ms := make([]*Money, n)
-	for i := int64(0); i < n; i++ {
+	for i := 0; i < n; i++ {
 		ms[i] = &Money{amount: z, currency: m.currency}
 	}
 
@@ -115,7 +115,7 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 		sum += r
 	}
 
-	var total int64
+	var total *Amount
 	var ms []*Money
 
 	for _, r := range rs {
