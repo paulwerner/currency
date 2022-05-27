@@ -1,21 +1,13 @@
-/*
-maxInt64:        9223372036854775807
-maxInt64:        111111111111111111111111111111111111111111111111111111111111111
-minInt64:        -9223372036854775808
-minInt64:        -1000000000000000000000000000000000000000000000000000000000000000
-maxUint64:       9223372036854775807
-maxUint64:       111111111111111111111111111111111111111111111111111111111111111
-minUint64:       9223372036854775808
-minUint64:       1000000000000000000000000000000000000000000000000000000000000000
-
-valUint64:       9223372036854775808
-valUint64:       1000000000000000000000000000000000000000000000000000000000000000
-*/
 package money
 
 const (
-	min int64 = -1 << 63
-	max int64 = 1<<63 - 1
+	intSize = 32 << (^uint(0) >> 63) // 32 or 64
+
+	minInt = -1 << (intSize - 1)
+	maxInt = 1<<(intSize-1) - 1
+
+	loBound uint = -(minInt) // 9223372036854775808
+	hiBound uint = maxInt    // 9223372036854775807
 )
 
 func add(x, y *Amount) (*Amount, bool) {
@@ -32,7 +24,7 @@ func add(x, y *Amount) (*Amount, bool) {
 	} else {
 		// x + (-y) == x - y == -(y - x)
 		// (-x) + y == y - x == -(x - y)
-		if x.val.cmp(y.val) >= 0 {
+		if x.cmpByValue(y) >= 0 {
 			val, ok := _sub(x.val, y.val)
 			if !ok {
 				return nil, false
@@ -49,12 +41,6 @@ func add(x, y *Amount) (*Amount, bool) {
 	}
 	r.neg = neg
 	return &r, true
-}
-
-func _add(x, y value) (sum value, ok bool) {
-	sum = x + y
-	ok = ((x&y)|(x|y)&^sum)>>63 == 0
-	return
 }
 
 func sub(x, y *Amount) (*Amount, bool) {
@@ -71,7 +57,7 @@ func sub(x, y *Amount) (*Amount, bool) {
 	} else {
 		// x - y == x - y == -(y - x)
 		// (-x) - (-y) == y - x == -(x - y)
-		if x.val.cmp(y.val) >= 0 {
+		if x.cmpByValue(y) >= 0 {
 			val, ok := _sub(x.val, y.val)
 			if !ok {
 				return nil, false
@@ -90,52 +76,92 @@ func sub(x, y *Amount) (*Amount, bool) {
 	return &r, true
 }
 
-func _sub(a, b value) (diff value, ok bool) {
-	diff = a - b
-	ok = ((^a&b)|(^(a^b)&diff))>>63 == 0
-	return
-}
-
-func mul(x *Amount, m int64) (*Amount, bool) {
+func mul(x *Amount, m int) (*Amount, bool) {
 	if x.val == 0 || m == 0 {
 		return &Amount{val: 0, neg: false}, true
 	}
 
 	neg := x.neg
+	multi := uint(m)
 	if !x.neg { // x is positive
 		if m > 0 { // x and m is positive
-			if x.Int64() > max/m {
+			if x.val > (hiBound / multi) {
 				return nil, false
 			}
 			neg = false
 		} else { // x positive m negative
-			if m < (min / x.Int64()) {
+			if multi < (loBound / x.val) {
 				return nil, false
 			}
 			neg = true
 		}
 	} else { // x is negative
 		if m > 0 { // x is negative m is positive
-			if x.Int64() < (min / m) {
+			if x.val < (loBound / multi) {
 				return nil, false
 			}
 			neg = true
 		} else { // x and m negative
-			if x.val != 0 && m < (max/x.Int64()) {
+			if x.val != 0 && multi < (hiBound/x.val) {
 				return nil, false
 			}
 			neg = false
 		}
 	}
-	val := _abs(x.Int64() * m)
+
+	val, ok := _mul(x.val, multi, _bound(neg))
+	if !ok {
+		return nil, false
+	}
+
 	return &Amount{val: value(val), neg: neg}, true
 }
 
-func div(a *Amount, d int64) (*Amount, bool) {
+func _bound(neg bool) (bound uint) {
+	if neg {
+		bound = loBound
+	} else {
+		bound = hiBound
+	}
+	return
+}
+
+func _add(x, y value) (sum value, ok bool) {
+	sum = x + y
+	ok = ((x&y)|(x|y)&^sum)>>63 == 0
+	return
+}
+
+func _sub(a, b value) (diff value, ok bool) {
+	diff = a - b
+	ok = ((^a&b)|(^(a^b)&diff))>>63 == 0
+	return
+}
+
+func _mul(x, y, bound uint) (p value, ok bool) {
+	const mask32 = 1<<32 - 1
+	x0 := x & mask32
+	x1 := x >> 32
+	y0 := y & mask32
+	y1 := y >> 32
+	w0 := x0 * y0
+	t := x1*y0 + w0>>32
+	w1 := t & mask32
+	w2 := t >> 32
+	w1 += x0 * y1
+	hi := x1*y1 + w2 + w1>>32
+	lo := x * y
+
+	p = lo
+	ok = p <= bound && hi == 0
+	return
+}
+
+func div(a *Amount, d int) (*Amount, bool) {
 	panic("not implemented")
 }
 
-func mod(a *Amount, d int64) *Amount {
+func mod(a *Amount, d int) *Amount {
 	panic("not implemented")
 }
 
@@ -151,7 +177,7 @@ func abs(a *Amount) *Amount {
 	panic("not implemented")
 }
 
-func _abs(x int64) int64 {
+func _abs(x int) int {
 	if x < 0 {
 		return -x
 	}
