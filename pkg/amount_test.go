@@ -7,7 +7,7 @@ import (
 )
 
 func TestAmount(t *testing.T) {
-	a := amount(int64(math.MinInt64))
+	a := amount(math.MinInt64)
 	if !a.neg {
 		t.Errorf("expected %v to be positive", a)
 	}

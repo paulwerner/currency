@@ -14,14 +14,14 @@ type Money struct {
 	currency *Currency
 }
 
-func New(v int64, cur *Currency) (*Money, error) {
+func New(v int, cur *Currency) (*Money, error) {
 	return &Money{
 		amount:   amount(v),
 		currency: cur,
 	}, nil
 }
 
-func NewFromISO(v int64, iso string) (*Money, error) {
+func NewFromISO(v int, iso string) (*Money, error) {
 	cur, err := CurrencyFromISO(iso)
 	if err != nil {
 		return nil, err

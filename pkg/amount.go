@@ -21,6 +21,6 @@ func (a *Amount) Int64() int64 {
 	return int64(a.val)
 }
 
-func amount(v int64) *Amount {
+func amount(v int) *Amount {
 	return &Amount{val: value(v), neg: v < 0}
 }
