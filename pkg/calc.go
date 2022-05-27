@@ -79,40 +79,44 @@ func sub(x, y *Amount) (*Amount, bool) {
 	return &r, true
 }
 
+// x * m 	== 	2 * 3 	== 	6
+// -x * m 	== -2 * 3 	== -6 <
+// x * -m 	== 	2 * -3 	== -6 <
+// -x * -m 	== -2 * -3 	== 	6
 func mul(x *Amount, m int) (*Amount, bool) {
 	if x.val == 0 || m == 0 {
 		return &Amount{val: 0, neg: false}, true
 	}
 
-	neg := x.neg
-	multi := uint(m)
+	neg := x.neg || m < 0
+	absm := uint(_abs(m))
 	if !x.neg { // x is positive
 		if m > 0 { // x and m is positive
-			if x.val > (hiBound / multi) {
+			if x.val > hiBound/absm {
 				return nil, false
 			}
 			neg = false
 		} else { // x positive m negative
-			if multi < (loBound / x.val) {
+			if absm < loBound/x.val {
 				return nil, false
 			}
 			neg = true
 		}
 	} else { // x is negative
 		if m > 0 { // x is negative m is positive
-			if x.val < (loBound / multi) {
+			if x.val < loBound/absm {
 				return nil, false
 			}
 			neg = true
 		} else { // x and m negative
-			if x.val != 0 && multi < (hiBound/x.val) {
+			if x.val != 0 && absm < hiBound/x.val {
 				return nil, false
 			}
 			neg = false
 		}
 	}
 
-	val, ok := _mul(x.val, multi, _bound(neg))
+	val, ok := _mul(x.val, absm, _bound(neg))
 	if !ok {
 		return nil, false
 	}
@@ -120,10 +124,32 @@ func mul(x *Amount, m int) (*Amount, bool) {
 	return &Amount{val: value(val), neg: neg}, true
 }
 
+// x / y 	== 	4 /	 2 	== 	2
+// -x / y 	== -4 /	 2 	== -2
+// x / -y 	== 	4 /	-2 	== -2
+// -x / -y 	== -4 /	-2 	== 	2
 func div(a *Amount, d int) (*Amount, bool) {
+	// check division by zero and overflow
+	if d == 0 || (a.neg && a.val == loBound && d == -1) {
+		return nil, false
+	}
+	neg := a.neg || d < 0
+	absd := _abs(d)
+	if _is32() {
+		q := _div32(uint32(a.val), uint32(absd))
+		return &Amount{val: q, neg: neg}, true
+	}
+	q := _div64(uint64(a.val), uint64(absd))
+	return &Amount{val: q, neg: neg}, true
+}
+
+func _div64(x, y uint64) value {
 	panic("not implemented")
 }
 
+func _div32(x, y uint32) value {
+	return value(x / y)
+}
 func mod(a *Amount, d int) *Amount {
 	panic("not implemented")
 }
@@ -140,11 +166,9 @@ func abs(a *Amount) *Amount {
 	panic("not implemented")
 }
 
-func _abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
+func _abs(n int) int {
+	y := n >> (intSize - 1)
+	return (n ^ y) - y
 }
 
 func round(a *Amount, s, i int) *Amount {
