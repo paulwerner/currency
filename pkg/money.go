@@ -203,7 +203,10 @@ func (m *Money) Neg() (bool, error) {
 //
 
 func (m *Money) assertSameCurrency(om *Money) error {
-	panic("not implemented")
+	if !m.currency.Equals(om.currency) {
+		return ErrCurrencyMismatch
+	}
+	return nil
 }
 
 func (m *Money) compare(om *Money) int {
