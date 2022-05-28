@@ -3,10 +3,10 @@ package money
 import "errors"
 
 var (
-	ErrCurrencyMismatch  = errors.New("money: currency mismatch")
-	ErrOperationOverflow = errors.New("money: operation overflow")
-	ErrSplitNegative     = errors.New("money: split must be positive")
-	ErrNoRatioSpecified  = errors.New("money: no ratio specified")
+	ErrCurrencyMismatch = errors.New("money: currency mismatch")
+	ErrOperationFailed  = errors.New("money: operation failed")
+	ErrSplitNegative    = errors.New("money: split must be positive")
+	ErrNoRatioSpecified = errors.New("money: no ratio specified")
 )
 
 type Money struct {
@@ -51,7 +51,7 @@ func (m *Money) Add(om *Money) (*Money, error) {
 
 	z, ok := add(m.amount, om.amount)
 	if !ok {
-		return nil, ErrOperationOverflow
+		return nil, ErrOperationFailed
 	}
 	return &Money{
 		amount:   z,
@@ -66,7 +66,7 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 
 	z, ok := sub(m.amount, om.amount)
 	if !ok {
-		return nil, ErrOperationOverflow
+		return nil, ErrOperationFailed
 	}
 	return &Money{
 		amount:   z,
@@ -77,7 +77,7 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 func (m *Money) Mul(n int) (*Money, error) {
 	z, ok := mul(m.amount, n)
 	if !ok {
-		return nil, ErrOperationOverflow
+		return nil, ErrOperationFailed
 	}
 	return &Money{
 		amount:   z,
@@ -92,7 +92,7 @@ func (m *Money) Split(n int) ([]*Money, *Money, error) {
 
 	z, ok := div(m.amount, n)
 	if !ok {
-		return nil, nil, ErrOperationOverflow
+		return nil, nil, ErrOperationFailed
 	}
 
 	ms := make([]*Money, n)
@@ -120,7 +120,7 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 	for _, r := range rs {
 		a, ok := alloc(m.amount, r, sum)
 		if !ok {
-			return nil, nil, ErrOperationOverflow
+			return nil, nil, ErrOperationFailed
 		}
 		party := &Money{
 			amount:   a,
@@ -128,12 +128,15 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 		}
 		ms = append(ms, party)
 		total, ok = add(total, m.amount)
+		if !ok {
+			return nil, nil, ErrOperationFailed
+		}
 	}
 
 	// leftover
 	lo, ok := sub(m.amount, total)
 	if !ok {
-		return nil, nil, ErrOperationOverflow
+		return nil, nil, ErrOperationFailed
 	}
 	return ms, &Money{amount: lo, currency: m.currency}, nil
 }
