@@ -182,7 +182,7 @@ func alloc(a *Amount, r, s int) (*Amount, bool) {
 }
 
 func neg(a *Amount) *Amount {
-	panic("not implemented")
+	return &Amount{val: a.val, neg: !a.neg}
 }
 
 func abs(a *Amount) *Amount {
