@@ -14,10 +14,10 @@ type Money struct {
 	currency *Currency
 }
 
-func New(v int, cur *Currency) (*Money, error) {
+func New(v int, cur Currency) (*Money, error) {
 	return &Money{
 		amount:   amount(v),
-		currency: cur,
+		currency: &cur,
 	}, nil
 }
 
