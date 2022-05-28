@@ -150,8 +150,7 @@ func div(a *Amount, d int) (*Amount, bool) {
 	uval := uint64(a.val)
 	uabsd := uint64(absd)
 	q := uval / uabsd
-	return &Amount{val: value(q), neg: neg},
-		true
+	return &Amount{val: value(q), neg: neg}, true
 }
 
 /*

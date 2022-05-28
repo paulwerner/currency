@@ -4,7 +4,7 @@ import "errors"
 
 var (
 	ErrCurrencyMismatch = errors.New("money: currency mismatch")
-	ErrOperationFailed  = errors.New("money: operation failed")
+	ErrInvalidOperation = errors.New("money: invalid operation")
 	ErrSplitNegative    = errors.New("money: split must be positive")
 	ErrNoRatioSpecified = errors.New("money: no ratio specified")
 )
@@ -51,7 +51,7 @@ func (m *Money) Add(om *Money) (*Money, error) {
 
 	z, ok := add(m.amount, om.amount)
 	if !ok {
-		return nil, ErrOperationFailed
+		return nil, ErrInvalidOperation
 	}
 	return &Money{
 		amount:   z,
@@ -66,7 +66,7 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 
 	z, ok := sub(m.amount, om.amount)
 	if !ok {
-		return nil, ErrOperationFailed
+		return nil, ErrInvalidOperation
 	}
 	return &Money{
 		amount:   z,
@@ -77,7 +77,7 @@ func (m *Money) Sub(om *Money) (*Money, error) {
 func (m *Money) Mul(n int) (*Money, error) {
 	z, ok := mul(m.amount, n)
 	if !ok {
-		return nil, ErrOperationFailed
+		return nil, ErrInvalidOperation
 	}
 	return &Money{
 		amount:   z,
@@ -92,7 +92,7 @@ func (m *Money) Split(n int) ([]*Money, *Money, error) {
 
 	z, ok := div(m.amount, n)
 	if !ok {
-		return nil, nil, ErrOperationFailed
+		return nil, nil, ErrInvalidOperation
 	}
 
 	ms := make([]*Money, n)
@@ -120,7 +120,7 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 	for _, r := range rs {
 		a, ok := alloc(m.amount, r, sum)
 		if !ok {
-			return nil, nil, ErrOperationFailed
+			return nil, nil, ErrInvalidOperation
 		}
 		party := &Money{
 			amount:   a,
@@ -129,14 +129,14 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 		ms = append(ms, party)
 		total, ok = add(total, m.amount)
 		if !ok {
-			return nil, nil, ErrOperationFailed
+			return nil, nil, ErrInvalidOperation
 		}
 	}
 
 	// leftover
 	lo, ok := sub(m.amount, total)
 	if !ok {
-		return nil, nil, ErrOperationFailed
+		return nil, nil, ErrInvalidOperation
 	}
 	return ms, &Money{amount: lo, currency: m.currency}, nil
 }
