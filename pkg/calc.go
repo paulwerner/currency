@@ -131,18 +131,12 @@ func mul(x *Amount, m int) (*Amount, bool) {
  	x / -y 	== 	4 /	-2 	== -2
  	-x / -y == -4 /	-2 	== 	2
  	sign determined by -x || -y
- 	
-	remainder:
- 	x % y == 5 % 2 == 1
- 	x % y == -5 % 2 == -1
- 	x % y == 5 % -2 == 1
- 	x % y == -5 % -2 == -1
- 	sign determined by sign of x
+
 */
-func div(a *Amount, d int) (*Amount, *Amount, bool) {
+func div(a *Amount, d int) (*Amount, bool) {
 	// check division by zero and overflow
 	if d == 0 || (a.neg && a.val == loBound && d == -1) {
-		return nil, nil, false
+		return nil, false
 	}
 	neg := a.neg || d < 0
 	absd := _abs(d)
@@ -150,26 +144,41 @@ func div(a *Amount, d int) (*Amount, *Amount, bool) {
 		uval := uint32(a.val)
 		uabsd := uint32(absd)
 		q := uval / uabsd
-		r := uval % uabsd
 		return &Amount{val: value(q), neg: neg},
-			&Amount{val: value(r), neg: a.neg},
 			true
 	}
 	uval := uint64(a.val)
 	uabsd := uint64(absd)
 	q := uval / uabsd
-	r := uval % uabsd
 	return &Amount{val: value(q), neg: neg},
-		&Amount{val: value(r), neg: a.neg},
 		true
 }
 
+/*
+remainder:
+ 	x % y == 5 % 2 == 1
+ 	x % y == -5 % 2 == -1
+ 	x % y == 5 % -2 == 1
+ 	x % y == -5 % -2 == -1
+ 	sign determined by sign of x
+*/
 func mod(a *Amount, d int) *Amount {
 	panic("not implemented")
 }
 
 func alloc(a *Amount, r, s int) (*Amount, bool) {
-	panic("not implemented")
+	if r <= 0 {
+		return nil, false
+	}
+	prod, ok := mul(a, r)
+	if !ok {
+		return nil, false
+	}
+	z, ok := div(prod, s)
+	if !ok {
+		return nil, false
+	}
+	return z, true
 }
 
 func neg(a *Amount) *Amount {
