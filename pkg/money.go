@@ -158,7 +158,8 @@ func (m *Money) UnmarshalJSON([]byte) error {
 }
 
 func (m *Money) Equals(om *Money) bool {
-	panic("not implemented")
+	return m.amount.Equals(om.amount) &&
+		m.currency.Equals(om.currency)
 }
 
 func (m *Money) GreaterThan(om *Money) (bool, error) {

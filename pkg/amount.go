@@ -7,10 +7,9 @@ type Amount struct {
 	neg bool
 }
 
-func (a *Amount) Int64() int64 {
-	return int64(a.val)
+func (a *Amount) Equals(oa *Amount) bool {
+	return a.val == oa.val && a.neg == oa.neg
 }
-
 func amount(v int) *Amount {
 	return &Amount{val: value(_abs(v)), neg: v < 0}
 }
