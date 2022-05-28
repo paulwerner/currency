@@ -161,8 +161,20 @@ remainder:
  	x % y == -5 % -2 == -1
  	sign determined by sign of x
 */
-func mod(a *Amount, d int) *Amount {
-	panic("not implemented")
+func mod(a *Amount, d int) (amount *Amount, ok bool) {
+	if d <= 0 {
+		return
+
+	} else {
+		if _is32() {
+			amount = &Amount{val: value(uint32(a.val) % uint32(_abs(d))), neg: a.neg}
+			ok = true
+		} else {
+			amount = &Amount{val: value(uint64(a.val) % uint64(_abs(d))), neg: a.neg}
+			ok = true
+		}
+	}
+	return
 }
 
 func alloc(a *Amount, r, s int) (*Amount, bool) {
@@ -181,6 +193,7 @@ func alloc(a *Amount, r, s int) (*Amount, bool) {
 }
 
 func neg(a *Amount) *Amount {
+	// TODO: add overflow check
 	return &Amount{val: a.val, neg: !a.neg}
 }
 

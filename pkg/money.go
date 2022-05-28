@@ -99,7 +99,10 @@ func (m *Money) Split(n int) ([]*Money, *Money, error) {
 	for i := 0; i < n; i++ {
 		ms[i] = &Money{amount: z, currency: m.currency}
 	}
-	r := mod(m.amount, n)
+	r, ok := mod(m.amount, n)
+	if !ok {
+		return nil, nil, ErrInvalidOperation
+	}
 	return ms, &Money{amount: r, currency: m.currency}, nil
 }
 
