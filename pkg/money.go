@@ -181,16 +181,16 @@ func (m *Money) LessThanOrEqual(om *Money) (bool, error) {
 	panic("not implemented")
 }
 
-func (m *Money) IsPositive() (bool, error) {
-	panic("not implemented")
+func (m *Money) IsPositive() bool {
+	return !m.amount.neg
 }
 
-func (m *Money) IsZero() (bool, error) {
-	panic("not implemented")
+func (m *Money) IsZero() bool {
+	return m.amount.val == 0
 }
 
-func (m *Money) IsNegative() (bool, error) {
-	panic("not implemented")
+func (m *Money) IsNegative() bool {
+	return m.amount.neg
 }
 
 func (m *Money) Abs() (bool, error) {
