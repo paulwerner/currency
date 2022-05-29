@@ -89,7 +89,7 @@ func mul(x *Amount, m int) (*Amount, bool) {
 	}
 
 	neg := x.neg || m < 0
-	absm := uint(_abs(m))
+	absm := uint(_absInt(m))
 	if !x.neg { // x is positive
 		if m > 0 { // x and m is positive
 			if x.val > hiBound/absm {
@@ -139,7 +139,7 @@ func div(a *Amount, d int) (*Amount, bool) {
 		return nil, false
 	}
 	neg := a.neg || d < 0
-	absd := _abs(d)
+	absd := _absInt(d)
 	if _is32() {
 		uval := uint32(a.val)
 		uabsd := uint32(absd)
@@ -167,10 +167,10 @@ func mod(a *Amount, d int) (amount *Amount, ok bool) {
 
 	} else {
 		if _is32() {
-			amount = &Amount{val: value(uint32(a.val) % uint32(_abs(d))), neg: a.neg}
+			amount = &Amount{val: value(uint32(a.val) % uint32(_absInt(d))), neg: a.neg}
 			ok = true
 		} else {
-			amount = &Amount{val: value(uint64(a.val) % uint64(_abs(d))), neg: a.neg}
+			amount = &Amount{val: value(uint64(a.val) % uint64(_absInt(d))), neg: a.neg}
 			ok = true
 		}
 	}
@@ -193,17 +193,14 @@ func alloc(a *Amount, r, s int) (*Amount, bool) {
 }
 
 func neg(a *Amount) *Amount {
-	// TODO: add overflow check
-	return &Amount{val: a.val, neg: !a.neg}
+	return &Amount{val: a.val, neg: true}
 }
 
-func abs(a *Amount) *Amount {
-	panic("not implemented")
-}
-
-func _abs(n int) int {
-	y := n >> (intSize - 1)
-	return (n ^ y) - y
+func abs(a *Amount) (*Amount, bool) {
+	if a.neg && a.val == loBound {
+		return nil, false
+	}
+	return &Amount{val: a.val, neg: false}, true
 }
 
 func round(a *Amount, s, i int) *Amount {
@@ -273,4 +270,9 @@ func _mul64(x, y, bound uint64) (p value, ok bool) {
 	p = value(lo)
 	ok = lo <= bound && hi == 0
 	return
+}
+
+func _absInt(n int) int {
+	y := n >> (intSize - 1)
+	return (n ^ y) - y
 }
