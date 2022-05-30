@@ -51,7 +51,7 @@ func (c *calculator) sub(x, y value2) (value2, bool) {
 	return x - y, true
 }
 
-func (c *calculator) mul(x, m value2) (value2, bool) {
+func (c *calculator) mul(x value2, m int) (value2, bool) {
 	if x == 0 || m == 0 {
 		return 0, true
 	}
@@ -64,20 +64,69 @@ func (c *calculator) mul(x, m value2) (value2, bool) {
 	return x * m, true
 }
 
-func (c *calculator) div(x, d value2) (value2, bool) {
+func (c *calculator) div(x value2, d int) (value2, bool) {
 	if d == 0 ||
-		((x == loBound2 && d == -1) ) {
+		(x == loBound2 && d == -1) {
 		return 0, false
 	}
 	return x / d, true
 }
 
-func (c *calculator) mod(x, d value2) (value2, bool) {
+func (c *calculator) mod(x value2, d int) (value2, bool) {
 	if d == 0 || (x == loBound2 && d == -1) {
 		return 0, false
 	}
 	return x % d, true
 }
+
+func (c *calculator) alloc(x value2, r, s int) (value2, bool) {
+	if r < 0 || s <= 0 {
+		return 0, false
+	}
+	if r > s {
+		return 0, false
+	}
+	if r == 0 {
+		return 0, true
+	}
+
+	p, ok := c.mul(x, r)
+	if !ok {
+		return 0, false
+	}
+	z, ok := c.div(p, s)
+	if !ok {
+		return 0, false
+	}
+	return z, true
+}
+
+func (c *calculator) neg(x value2) value2 {
+	if x > 0 {
+		return -x
+	}
+	return x
+}
+
+func (c *calculator) abs(x value2) (value2, bool) {
+	if x < 0 {
+		if x == loBound2 {
+			return 0, false
+		}
+		return -x, true
+	}
+	return x, true
+}
+
+func (c *calculator) round(x value2, s, i int) (value2, bool) {
+	panic("not implemented")
+}
+
+//
+//
+// To Be Deleted 
+//
+//
 
 func add(x, y *Amount) (*Amount, bool) {
 	var r Amount

@@ -185,7 +185,7 @@ func TestCalc_subtraction(t *testing.T) {
 func TestCalc_multiplication(t *testing.T) {
 	for i, tc := range map[int]struct {
 		x      value2
-		m      value2
+		m      int
 		wantOk bool
 		wantZ  value2
 	}{
@@ -229,7 +229,7 @@ func TestCalc_multiplication(t *testing.T) {
 func TestCalc_division(t *testing.T) {
 	for i, tc := range map[int]struct {
 		x      value2
-		d      value2
+		d      int
 		wantOk bool
 		wantZ  value2
 	}{
@@ -278,10 +278,10 @@ func TestCalc_division(t *testing.T) {
 	}
 }
 
-func TestCalc_mod(t *testing.T) {
+func TestCalc_modulo(t *testing.T) {
 	for i, tc := range map[int]struct {
 		x      value2
-		d      value2
+		d      int
 		wantOk bool
 		wantZ  value2
 	}{
@@ -325,6 +325,79 @@ func TestCalc_mod(t *testing.T) {
 		}
 		if z != tc.wantZ {
 			t.Errorf("[%v]: want z: %v, got: %v", i, tc.wantZ, z)
+		}
+	}
+}
+
+func TestCalc_allocation(t *testing.T) {
+	for i, tc := range map[int]struct {
+		x      value2
+		r      int
+		s      int
+		wantOk bool
+		wantZ  value2
+	}{
+		// error cases
+		0: {1, -1, 1, false, 0},
+		1: {1, 1, 0, false, 0},
+		2: {1, 1, -1, false, 0},
+		3: {1, 1, math.MinInt, false, 0},
+		4: {1, 2, 1, false, 0},
+
+		// success
+		5: {10, 5, 10, true, 5},
+		6: {10, 7, 10, true, 7},
+		7: {10, 3, 10, true, 3},
+	} {
+		z, ok := calc.alloc(tc.x, tc.r, tc.s)
+		if ok != tc.wantOk {
+			t.Errorf("[%v]: want ok: %v, got: %v", i, tc.wantOk, ok)
+		}
+		if z != tc.wantZ {
+			t.Errorf("[%v]: want z: %v, got: %v", i, tc.wantZ, z)
+		}
+	}
+}
+
+func TestCalc_negation(t *testing.T) {
+	for i, tc := range map[int]struct {
+		x    value2
+		want value2
+	}{
+		0: {1, -1},
+		1: {-1, -1},
+		2: {-2, -2},
+		3: {2, -2},
+		4: {math.MinInt, math.MinInt},
+		5: {math.MaxInt, math.MinInt + 1},
+	} {
+		z := calc.neg(tc.x)
+		if z != tc.want {
+			t.Errorf("[%v]: want z: %v, got: %v", i, tc.want, z)
+		}
+	}
+}
+func TestCalc_absolute(t *testing.T) {
+	for i, tc := range map[int]struct {
+		x      value2
+		want   value2
+		wantOk bool
+	}{
+		0: {1, 1, true},
+		1: {-1, 1, true},
+		2: {-2, 2, true},
+		3: {2, 2, true},
+		5: {math.MaxInt, math.MaxInt, true},
+
+		// overflow
+		4: {math.MinInt, 0, false},
+	} {
+		z, ok := calc.abs(tc.x)
+		if ok != tc.wantOk {
+			t.Errorf("[%v]: want ok: %v, got: %v", i, tc.wantOk, ok)
+		}
+		if z != tc.want {
+			t.Errorf("[%v]: want z: %v, got: %v", i, tc.want, z)
 		}
 	}
 }
