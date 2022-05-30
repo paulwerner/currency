@@ -1,6 +1,7 @@
 package money
 
 type value = uint
+type value2 = int
 
 type Amount struct {
 	val value
@@ -11,7 +12,7 @@ func (a *Amount) Equals(oa *Amount) bool {
 	return a.val == oa.val && a.neg == oa.neg
 }
 func amount(v int) *Amount {
-	return &Amount{val: value(_abs(v)), neg: v < 0}
+	return &Amount{val: value(v), neg: v < 0}
 }
 
 func (a *Amount) cmpByValue(oa *Amount) int {

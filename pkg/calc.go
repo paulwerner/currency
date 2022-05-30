@@ -11,7 +11,73 @@ const (
 	// 32 bit: 2147483647
 	// 64bit: 9223372036854775807
 	hiBound uint = 1<<(intSize-1) - 1
+
+	// 32 bit: -2147483648
+	// 64bit: -9223372036854775808
+	// loBound2 int  = -1 << (intSize - 1)
+	loBound2 int = -1 << (intSize - 1)
+	// 32 bit: 2147483647
+	// 64bit: 9223372036854775807
+	hiBound2 int = 1<<(intSize-1) - 1
 )
+
+type calculator struct{}
+
+var calc = calculator{}
+
+func (c *calculator) add(x, y value2) (value2, bool) {
+	if y > 0 {
+		if x > hiBound2-y {
+			return 0, false
+		}
+	} else {
+		if x < loBound2-y {
+			return 0, false
+		}
+	}
+	return x + y, true
+}
+
+func (c *calculator) sub(x, y value2) (value2, bool) {
+	if y > 0 {
+		if x < loBound2+y {
+			return 0, false
+		}
+	} else {
+		if x > hiBound2+y {
+			return 0, false
+		}
+	}
+	return x - y, true
+}
+
+func (c *calculator) mul(x, m value2) (value2, bool) {
+	if x == 0 || m == 0 {
+		return 0, true
+	}
+	if (m > 0 && x > hiBound2/m) || (m < 0 && x < hiBound2/m) {
+		return 0, false
+	}
+	if (m > 0 && x < loBound2/m) || (m < -1 && x > loBound2/m) {
+		return 0, false
+	}
+	return x * m, true
+}
+
+func (c *calculator) div(x, d value2) (value2, bool) {
+	if d == 0 ||
+		((x == loBound2 && d == -1) ) {
+		return 0, false
+	}
+	return x / d, true
+}
+
+func (c *calculator) mod(x, d value2) (value2, bool) {
+	if d == 0 || (x == loBound2 && d == -1) {
+		return 0, false
+	}
+	return x % d, true
+}
 
 func add(x, y *Amount) (*Amount, bool) {
 	var r Amount
