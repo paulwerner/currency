@@ -1,22 +1,24 @@
-package tag
+package data
 
 import "sort"
 
 // Index converts tags to a compact numeric value
 //
-// All elements re of size 4. Tags may be up to 4 bytes long. Excess bytes can
-// be used to store additional information about the tag.
-type Index string
+// Table represents data stored as string of bytes.
+//
+// All elements are of size 4. Data may be up to 4 bytes long. Excess bytes can
+// be used to store additional information about the data.
+type Table string
 
 // Elem returns the element data at the given index
-func (s Index) Elem(x int) string {
+func (s Table) Elem(x int) string {
 	return string(s[x*4 : x*4+4])
 }
 
 // Index reports the index of the given key or -1 if it could not be found.
 // Only the first len(key) bytes from the start of the 4-byte entries will be
 // considered for the search and the first match in Index will be returned
-func (s Index) Index(key []byte) int {
+func (s Table) Index(key []byte) int {
 	n := len(key)
 	// search the index of the first entry with an equal or higher value than
 	// key in s
@@ -31,7 +33,7 @@ func (s Index) Index(key []byte) int {
 }
 
 // cmp returns an integer comparing a and b lexicographically.
-func cmp(a Index, b []byte) int {
+func cmp(a Table, b []byte) int {
 	n := len(a)
 	if len(b) < n {
 		n = len(b)
@@ -54,7 +56,7 @@ func cmp(a Index, b []byte) int {
 }
 
 // FixCase reformats b to the same pattern of cases as form.
-// If returns false if string b is malformed.
+// It returns false if string b is malformed.
 func FixCase(form string, b []byte) bool {
 	if len(form) != len(b) {
 		return false

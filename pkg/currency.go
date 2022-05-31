@@ -3,7 +3,7 @@ package money
 import (
 	"errors"
 
-	"github.com/paulwerner/gomoney/internal/tag"
+	"github.com/paulwerner/gomoney/internal/data"
 )
 
 // Kind determines the rounding and rendering properties of the currency value
@@ -78,7 +78,7 @@ var (
 func CurrencyFromISO(s string) (*Currency, error) {
 	var buf [4]byte // Take one byte more to detect oversized keys
 	key := buf[:copy(buf[:], s)]
-	if !tag.FixCase("XXX", key) {
+	if !data.FixCase("XXX", key) {
 		return &Currency{}, errSyntax
 	}
 	if i := currency.Index(key); i >= 0 {

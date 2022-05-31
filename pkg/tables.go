@@ -2,7 +2,7 @@
 
 package money
 
-import "github.com/paulwerner/gomoney/internal/tag"
+import "github.com/paulwerner/gomoney/internal/data"
 
 const (
 	xxx = 288
@@ -41,7 +41,7 @@ const (
 // currency holds an alphabetically sorted list of canonical 3-letter currency
 // identifiers. Each identifier is followed by a byte of type currencyInfo,
 // defined in gen_common.go.
-const currency tag.Index = "" + // Size: 1220 bytes
+const currency data.Table = "" + // Size: 1220 bytes
 	"\x00\x00\x00\x00\x41\x44\x50\x09\x41\x45\x44\x00\x41\x46\x41\x00\x41\x46" +
 	"\x4e\x09\x41\x4c\x4b\x00\x41\x4c\x4c\x09\x41\x4d\x44\x08\x41\x4e\x47\x00" +
 	"\x41\x4f\x41\x00\x41\x4f\x4b\x00\x41\x4f\x4e\x00\x41\x4f\x52\x00\x41\x52" +

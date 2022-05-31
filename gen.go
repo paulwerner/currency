@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	cw "github.com/paulwerner/gocodewriter"
-	"github.com/paulwerner/gomoney/internal/tag"
+	"github.com/paulwerner/gomoney/internal/data"
 	"golang.org/x/text/unicode/cldr"
 )
 
@@ -38,7 +38,7 @@ func main() {
 	w := cw.NewWriter()
 	defer w.WriteGoFile(*outputFile, "money")
 
-	fmt.Fprintln(w, `import "github.com/paulwerner/gomoney/internal/tag"`)
+	fmt.Fprintln(w, `import "github.com/paulwerner/gomoney/internal/data"`)
 
 	b := builder{}
 	b.genCurrencies(w, db.Supplemental())
@@ -47,8 +47,10 @@ func main() {
 var constants = []string{
 	// Undefined and testing.
 	"XXX", "XTS",
+
 	// G11 currencies https://en.wikipedia.org/wiki/G10_currencies.
 	"USD", "EUR", "JPY", "GBP", "CHF", "AUD", "NZD", "CAD", "SEK", "NOK", "DKK",
+	
 	// Precious metals.
 	"XAG", "XAU", "XPT", "XPD",
 
@@ -58,7 +60,7 @@ var constants = []string{
 }
 
 type builder struct {
-	currencies    tag.Index
+	currencies    data.Table
 	numCurrencies int
 }
 
@@ -113,7 +115,7 @@ func (b *builder) genCurrencies(w *cw.Writer, db *cldr.SupplementalData) {
 			currencies[i] += mkCurrencyInfo(0, 0)
 		}
 	}
-	b.currencies = tag.Index(strings.Join(currencies, ""))
+	b.currencies = data.Table(strings.Join(currencies, ""))
 	w.WriteComment(`
 	currency holds an alphabetically sorted list of canonical 3-letter currency
 	identifiers. Each identifier is followed by a byte of type currencyInfo,
