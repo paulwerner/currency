@@ -118,13 +118,39 @@ func (c *calculator) abs(x value2) (value2, bool) {
 	return x, true
 }
 
+// pow computes x**e using binary powering algorithm 
+// for a positive exponent
+// see Donald Knuth: The Art of Computer Programming
+func (c *calculator) pow(x value2, e int) (value2, bool) {
+	if e < 0 {
+		return 0, false
+	}
+	p := 1
+	for e > 0 {
+		if e&1 != 0 {
+			r, ok := c.mul(p, x)
+			if !ok {
+				return 0, false
+			}
+			p = r
+		}
+		e >>= 1
+		r, ok := c.mul(x, x)
+		if !ok {
+			return 0, false
+		}
+		x = r
+	}
+	return p, true
+}
+
 func (c *calculator) round(x value2, s, i int) (value2, bool) {
 	panic("not implemented")
 }
 
 //
 //
-// To Be Deleted 
+// To Be Deleted
 //
 //
 
