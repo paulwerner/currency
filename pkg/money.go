@@ -145,8 +145,13 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 	return ms, &Money{amount: lo, currency: m.currency}, nil
 }
 
-func (m *Money) Round() *Money {
-	panic("not implemented")
+func (m *Money) Round(k Kind) (*Money, error) {
+	s, i := k.Rounding(m.currency)
+	r, ok := round(m.amount, s, i)
+	if !ok {
+		return nil, ErrInvalidOperation
+	}
+	return &Money{amount: r, currency: m.currency}, nil
 }
 
 func (m *Money) Display() string {

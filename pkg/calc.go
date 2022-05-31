@@ -132,7 +132,7 @@ func pow(x, e int) (amount, bool) {
 	return p, true
 }
 
-func round(x amount, s int) (amount, bool) {
+func round(x amount, s, i int) (amount, bool) {
 	if x == 0 {
 		return 0, true
 	}

@@ -407,7 +407,7 @@ func TestCalc_rounding(t *testing.T) {
 		// negative scale
 		{1, -2, 0, false},
 	} {
-		z, ok := round(tc.x, tc.s)
+		z, ok := round(tc.x, tc.s, 1)
 		if ok != tc.wantOk {
 			t.Errorf("[%v]: want ok: %v, got: %v", i, tc.wantOk, ok)
 		}
