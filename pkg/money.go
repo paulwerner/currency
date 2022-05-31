@@ -131,7 +131,7 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 			currency: m.currency,
 		}
 		ms = append(ms, party)
-		total, ok = add(total, m.amount)
+		total, ok = add(total, a)
 		if !ok {
 			return nil, nil, ErrInvalidOperation
 		}

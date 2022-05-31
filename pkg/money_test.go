@@ -2,9 +2,10 @@ package money
 
 import "testing"
 
-func TestMoney_Base(t *testing.T) {
-	// Addition
+func TestMoney_Arithmetic(t *testing.T) {
 	m, _ := New(10, EUR)
+
+	// Addition
 	m2, _ := New(2, EUR)
 
 	sum, err := m.Add(m2)
@@ -61,6 +62,29 @@ func TestMoney_Base(t *testing.T) {
 		}
 		if !p.currency.Equals(&EUR) {
 			t.Errorf("ps[%v].currency != EUR, got %v", i, p.currency)
+		}
+	}
+
+	// Allocation
+	ms, rem, err := m.Alloc(11, 11, 11)
+	if err != nil {
+		t.Errorf("err not nil, got %v", err)
+	}
+	if rem.amount != 1 {
+		t.Errorf("expected remainder amount to be 1, got %v", rem.amount)
+	}
+	if !rem.currency.Equals(&EUR) {
+		t.Errorf("expected currency to be EUR, got %v", rem.currency)
+	}
+	if len(ms) != 3 {
+		t.Errorf("expected parties to be 3, got %v", len(ms))
+	}
+	for i := 0; i < 3; i++ {
+		if ms[i].amount != 3 {
+			t.Errorf("expected %v. party allocation amount to be 3, got %v", i, ms[i].amount)
+		}
+		if !ms[i].currency.Equals(&EUR) {
+			t.Errorf("expected %v. party allocation currency to be EUR, got %v", i, ms[i].currency)
 		}
 	}
 }
