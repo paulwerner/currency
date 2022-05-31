@@ -69,8 +69,8 @@ func (s *Currency) Equals(os *Currency) (ok bool) {
 }
 
 var (
-	errSyntax = errors.New("currency: tag is not well-formed")
-	errValue  = errors.New("currency: tag is not a recognized currency")
+	ErrISOCodeMalformed = errors.New("currency: iso code is not well-formed")
+	ErrISOCodeNotRecognized  = errors.New("currency: iso code is not a recognized currency")
 )
 
 // CurrencyFromISO parses a 3-letter ISO 4217 currencyData. It returns an error if s
@@ -79,15 +79,15 @@ func CurrencyFromISO(s string) (*Currency, error) {
 	var buf [4]byte // Take one byte more to detect oversized keys
 	key := buf[:copy(buf[:], s)]
 	if !data.FixCase("XXX", key) {
-		return &Currency{}, errSyntax
+		return nil, ErrISOCodeMalformed
 	}
 	if i := currency.Index(key); i >= 0 {
 		if i == xxx {
-			return &Currency{}, nil
+			return nil, nil
 		}
 		return &Currency{uint16(i)}, nil
 	}
-	return &Currency{}, errValue
+	return nil, ErrISOCodeNotRecognized
 }
 
 // MustCurrencyFromISO is like ParseISO, but panics if the given unit

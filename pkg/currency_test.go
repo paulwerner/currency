@@ -72,3 +72,30 @@ func TestKind_Rounding(t *testing.T) {
 		}
 	}
 }
+
+func TestCurrency_CurrencyFromISO(t *testing.T) {
+	isos := []string{"XCD", "ALL", "ALK", "AMD", "RUR", "SUR", "AOA", "AOR", "AON"}
+
+	for _, iso := range isos {
+		cur, err := CurrencyFromISO(iso)
+		if err != nil {
+			t.Errorf("[%v]: expected error to be nil, got %v", iso, err)
+		}
+		if cur == nil {
+			t.Errorf("[%v]: expected currency to be not nil, got %v", iso, err)
+		}
+		if cur.Code() != iso {
+			t.Errorf("[%v]: error expected currency iso, got %v", iso, cur.Code())
+		}
+	}
+
+	// not supported currency
+	iso := "BTC"
+	cur, err := CurrencyFromISO(iso)
+	if err == nil {
+		t.Errorf("[%v]: expected error not to be nil, got %v", iso, err)
+	}
+	if cur != nil {
+		t.Errorf("[%v]: expected currency to be  nil, got %v", iso, err)
+	}
+}
