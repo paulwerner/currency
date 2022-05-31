@@ -1,5 +1,4 @@
 // Code generated. DO NOT EDIT.
-
 package money
 
 import "github.com/paulwerner/gomoney/internal/data"

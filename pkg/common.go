@@ -1,5 +1,4 @@
 // Code generated. DO NOT EDIT.
-
 package money
 
 import "time"

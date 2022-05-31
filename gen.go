@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	cw "github.com/paulwerner/gocodewriter"
 	"github.com/paulwerner/gomoney/internal/data"
+	"github.com/paulwerner/gomoney/internal/gen"
 	"golang.org/x/text/unicode/cldr"
 )
 
@@ -34,8 +34,8 @@ func main() {
 		log.Fatalf("DecodeZip: %v", err)
 	}
 
-	cw.Repackage("gen_common.go", "./pkg/common.go", "money")
-	w := cw.NewWriter()
+	gen.Repackage("gen_common.go", "./pkg/common.go", "money")
+	w := gen.NewWriter()
 	defer w.WriteGoFile(*outputFile, "money")
 
 	fmt.Fprintln(w, `import "github.com/paulwerner/gomoney/internal/data"`)
@@ -50,7 +50,7 @@ var constants = []string{
 
 	// G11 currencies https://en.wikipedia.org/wiki/G10_currencies.
 	"USD", "EUR", "JPY", "GBP", "CHF", "AUD", "NZD", "CAD", "SEK", "NOK", "DKK",
-	
+
 	// Precious metals.
 	"XAG", "XAU", "XPT", "XPD",
 
@@ -64,7 +64,7 @@ type builder struct {
 	numCurrencies int
 }
 
-func (b *builder) genCurrencies(w *cw.Writer, db *cldr.SupplementalData) {
+func (b *builder) genCurrencies(w *gen.Writer, db *cldr.SupplementalData) {
 	// 3-letter ISO currency codes
 	// Start with dummy to let index start at 1.
 	currencies := []string{"\x00\x00\x00\x00"}
