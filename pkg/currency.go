@@ -19,10 +19,20 @@ const (
 	cash
 )
 
+var (
+	// Standard defines rounding and formatting standards for currencies
+	Standard Kind = Kind{rounding: standard}
+	// Cash defines rounding and formatting standards for cash transactions
+	Cash Kind = Kind{rounding: cash}
+
+	// Accounting defines rounding and formatting standards for accounting
+	Accounting Kind = Kind{rounding: standard}
+)
+
 // Rounding reports the rounding characteristics for the given currency, where
 // scale is the number of fractional decimals and increment is the number of
 // units in terms of 10^(-scale) to which to round to
-func (k Kind) Rounding(cur Currency) (scale, increment int) {
+func (k Kind) Rounding(cur *Currency) (scale, increment int) {
 	info := currency.Elem(int(cur.index))[3]
 	switch k.rounding {
 	case standard:
