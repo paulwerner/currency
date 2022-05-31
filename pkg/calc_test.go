@@ -448,3 +448,61 @@ func TestCalc_power(t *testing.T) {
 		}
 	}
 }
+
+func TestCalc_rounding(t *testing.T) {
+	for i, tc := range []struct {
+		x      value2
+		s      int
+		want   value2
+		wantOk bool
+	}{
+		// positive values
+		{110, 2, 100, true},
+		{111, 2, 100, true},
+		{111, 2, 100, true},
+		{301, 2, 300, true},
+		{401, 2, 400, true},
+
+		// edge cases
+		{449, 2, 400, true},
+		{450, 2, 500, true},
+		{451, 2, 500, true},
+		{499, 2, 500, true},
+		{501, 2, 500, true},
+
+		{111, 3, 0, true},
+		{1111, 3, 1000, true},
+		{1499, 3, 1000, true},
+		{1500, 3, 2000, true},
+
+		// negative values
+		{-110, 2, -100, true},
+		{-111, 2, -100, true},
+		{-111, 2, -100, true},
+		{-301, 2, -300, true},
+		{-401, 2, -400, true},
+
+		// edge cases
+		{-449, 2, -400, true},
+		{-450, 2, -500, true},
+		{-451, 2, -500, true},
+		{-499, 2, -500, true},
+		{-501, 2, -500, true},
+
+		{-111, 3, 0, true},
+		{-1111, 3, -1000, true},
+		{-1499, 3, -1000, true},
+		{-1500, 3, -2000, true},
+
+		// negative scale
+		{1, -2, 0, false},
+	} {
+		z, ok := calc.round(tc.x, tc.s)
+		if ok != tc.wantOk {
+			t.Errorf("[%v]: want ok: %v, got: %v", i, tc.wantOk, ok)
+		}
+		if z != tc.want {
+			t.Errorf("[%v]: want z: %v, got: %v", i, tc.want, z)
+		}
+	}
+}
