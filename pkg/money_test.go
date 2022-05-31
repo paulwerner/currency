@@ -11,7 +11,7 @@ func TestMoney_Base(t *testing.T) {
 	if err != nil {
 		t.Errorf("err not nil, got %v", err)
 	}
-	if !sum.amount.Equals(amount(12)) {
+	if !(sum.amount == amount(12)) {
 		t.Errorf("sum.amount != %v", 12)
 	}
 	if !sum.currency.Equals(&EUR) {
@@ -23,7 +23,7 @@ func TestMoney_Base(t *testing.T) {
 	if err != nil {
 		t.Errorf("err not nil, got %v", err)
 	}
-	if !diff.amount.Equals(amount(8)) {
+	if !(diff.amount == amount(8)) {
 		t.Errorf("sum.amount != %v, got %v", 8, sum.amount)
 	}
 	if !diff.currency.Equals(&EUR) {
@@ -36,7 +36,7 @@ func TestMoney_Base(t *testing.T) {
 	if err != nil {
 		t.Errorf("err not nil, got %v", err)
 	}
-	if !prod.amount.Equals(amount(20)) {
+	if !(prod.amount == amount(20)) {
 		t.Errorf("prod.amount != %v, got %v", 8, prod.amount)
 	}
 	if !prod.currency.Equals(&EUR) {
@@ -52,14 +52,14 @@ func TestMoney_Base(t *testing.T) {
 	if len(ps) != 2 {
 		t.Errorf("ps.len != 2, got %v", 2)
 	}
-	if r.amount.val != 0 {
-		t.Errorf("ps.reminder != 0, got %v", r.amount.val)
+	if r.amount != 0 {
+		t.Errorf("ps.reminder != 0, got %v", r.amount)
 	}
 	for i, p := range ps {
-		if p.amount.val != 5 {
-			t.Errorf("ps[%v].amount != 5, got %v", i, p.amount.val)
+		if p.amount != 5 {
+			t.Errorf("ps[%v].amount != 5, got %v", i, p.amount)
 		}
-		if p.currency != &EUR {
+		if !p.currency.Equals(&EUR) {
 			t.Errorf("ps[%v].currency != EUR, got %v", i, p.currency)
 		}
 	}

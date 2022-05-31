@@ -9,25 +9,26 @@ var (
 	ErrNoRatioSpecified = errors.New("money: no ratio specified")
 )
 
+type amount = int
 type Money struct {
-	amount   *Amount
+	amount   amount
 	currency *Currency
 }
 
-func New(v int, cur Currency) (*Money, error) {
+func New(v amount, cur Currency) (*Money, error) {
 	return &Money{
-		amount:   amount(v),
+		amount:   v,
 		currency: &cur,
 	}, nil
 }
 
-func NewFromISO(v int, iso string) (*Money, error) {
+func NewFromISO(v amount, iso string) (*Money, error) {
 	cur, err := CurrencyFromISO(iso)
 	if err != nil {
 		return nil, err
 	}
 	return &Money{
-		amount:   amount(v),
+		amount:   v,
 		currency: cur,
 	}, nil
 }
@@ -36,7 +37,7 @@ func (m *Money) Currency() *Currency {
 	return m.currency
 }
 
-func (m *Money) Amount() *Amount {
+func (m *Money) Amount() amount {
 	return m.amount
 }
 
@@ -117,7 +118,7 @@ func (m *Money) Alloc(rs ...int) ([]*Money, *Money, error) {
 		sum += r
 	}
 
-	var total *Amount
+	var total amount
 	var ms []*Money
 
 	for _, r := range rs {
@@ -164,7 +165,7 @@ func (m *Money) UnmarshalJSON([]byte) error {
 }
 
 func (m *Money) Equals(om *Money) bool {
-	return m.amount.Equals(om.amount) &&
+	return m.amount == om.amount &&
 		m.currency.Equals(om.currency)
 }
 
@@ -185,15 +186,15 @@ func (m *Money) LessThanOrEqual(om *Money) (bool, error) {
 }
 
 func (m *Money) IsPositive() bool {
-	return !m.amount.neg
+	return m.amount >= 0
 }
 
 func (m *Money) IsZero() bool {
-	return m.amount.val == 0
+	return m.amount == 0
 }
 
 func (m *Money) IsNegative() bool {
-	return m.amount.neg
+	return m.amount < 0
 }
 
 func (m *Money) Abs() (bool, error) {
@@ -213,8 +214,4 @@ func (m *Money) assertSameCurrency(om *Money) error {
 		return ErrCurrencyMismatch
 	}
 	return nil
-}
-
-func (m *Money) compare(om *Money) int {
-	panic("not implemented")
 }
