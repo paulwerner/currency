@@ -1,4 +1,4 @@
-module github.com/paulwerner/gomoney
+module github.com/paulwerner/gocurrency
 
 go 1.18
 

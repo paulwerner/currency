@@ -1,9 +1,9 @@
-package money
+package currency
 
 import (
 	"errors"
 
-	"github.com/paulwerner/gomoney/internal/data"
+	"github.com/paulwerner/gocurrency/internal/data"
 )
 
 // Kind determines the rounding and rendering properties of the currency value

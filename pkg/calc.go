@@ -1,4 +1,4 @@
-package money
+package currency
 
 const (
 	// 32 or 64
@@ -13,7 +13,7 @@ const (
 	hiBound int = 1<<(intSize-1) - 1
 )
 
-func add(x, y amount) (amount, bool) {
+func add(x, y int) (int, bool) {
 	if y > 0 {
 		if x > hiBound-y {
 			return 0, false
@@ -26,7 +26,7 @@ func add(x, y amount) (amount, bool) {
 	return x + y, true
 }
 
-func sub(x, y amount) (amount, bool) {
+func sub(x, y int) (int, bool) {
 	if y > 0 {
 		if x < loBound+y {
 			return 0, false
@@ -39,7 +39,7 @@ func sub(x, y amount) (amount, bool) {
 	return x - y, true
 }
 
-func mul(x amount, m int) (amount, bool) {
+func mul(x int, m int) (int, bool) {
 	if x == 0 || m == 0 {
 		return 0, true
 	}
@@ -52,7 +52,7 @@ func mul(x amount, m int) (amount, bool) {
 	return x * m, true
 }
 
-func div(x amount, d int) (amount, bool) {
+func div(x int, d int) (int, bool) {
 	if d == 0 ||
 		(x == loBound && d == -1) {
 		return 0, false
@@ -60,14 +60,14 @@ func div(x amount, d int) (amount, bool) {
 	return x / d, true
 }
 
-func mod(x amount, d int) (amount, bool) {
+func mod(x int, d int) (int, bool) {
 	if d == 0 || (x == loBound && d == -1) {
 		return 0, false
 	}
 	return x % d, true
 }
 
-func alloc(x amount, r, s int) (amount, bool) {
+func alloc(x int, r, s int) (int, bool) {
 	if r < 0 || s <= 0 {
 		return 0, false
 	}
@@ -89,14 +89,14 @@ func alloc(x amount, r, s int) (amount, bool) {
 	return z, true
 }
 
-func neg(x amount) amount {
+func neg(x int) int {
 	if x > 0 {
 		return -x
 	}
 	return x
 }
 
-func abs(x amount) (amount, bool) {
+func abs(x int) (int, bool) {
 	if x < 0 {
 		if x == loBound {
 			return 0, false
@@ -109,7 +109,7 @@ func abs(x amount) (amount, bool) {
 // pow computes x**e using binary powering algorithm
 // for a positive exponent
 // see Donald Knuth: The Art of Computer Programming
-func pow(x, e int) (amount, bool) {
+func pow(x, e int) (int, bool) {
 	if e < 0 {
 		return 0, false
 	}
@@ -132,7 +132,7 @@ func pow(x, e int) (amount, bool) {
 	return p, true
 }
 
-func round(x amount, s, i int) (amount, bool) {
+func round(x int, s, i int) (int, bool) {
 	if x == 0 {
 		return 0, true
 	}

@@ -1,7 +1,7 @@
 // Code generated. DO NOT EDIT.
-package money
+package currency
 
-import "github.com/paulwerner/gomoney/internal/data"
+import "github.com/paulwerner/gocurrency/internal/data"
 
 const (
 	xxx = 288

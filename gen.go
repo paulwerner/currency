@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/paulwerner/gomoney/internal/data"
-	"github.com/paulwerner/gomoney/internal/gen"
+	"github.com/paulwerner/gocurrency/internal/data"
+	"github.com/paulwerner/gocurrency/internal/gen"
 	"golang.org/x/text/unicode/cldr"
 )
 
@@ -34,11 +34,11 @@ func main() {
 		log.Fatalf("DecodeZip: %v", err)
 	}
 
-	gen.Repackage("gen_common.go", "./pkg/common.go", "money")
+	gen.Repackage("gen_common.go", "./pkg/common.go", "currency")
 	w := gen.NewWriter()
-	defer w.WriteGoFile(*outputFile, "money")
+	defer w.WriteGoFile(*outputFile, "currency")
 
-	fmt.Fprintln(w, `import "github.com/paulwerner/gomoney/internal/data"`)
+	fmt.Fprintln(w, `import "github.com/paulwerner/gocurrency/internal/data"`)
 
 	b := builder{}
 	b.genCurrencies(w, db.Supplemental())

@@ -1,19 +1,19 @@
-package money
+package currency
 
 import "testing"
 
-func TestMoney_Arithmetic(t *testing.T) {
-	m, _ := New(10, EUR)
+func TestAmount_Arithmetic(t *testing.T) {
+	m, _ := NewAmount(10, EUR)
 
 	// Addition
-	m2, _ := New(2, EUR)
+	m2, _ := NewAmount(2, EUR)
 
 	sum, err := m.Add(m2)
 	if err != nil {
 		t.Errorf("err not nil, got %v", err)
 	}
-	if !(sum.amount == amount(12)) {
-		t.Errorf("sum.amount != %v", 12)
+	if !(sum.value == 12) {
+		t.Errorf("sum.value != %v", 12)
 	}
 	if !sum.currency.Equals(&EUR) {
 		t.Errorf("sum.currency != %v", sum.currency)
@@ -24,8 +24,8 @@ func TestMoney_Arithmetic(t *testing.T) {
 	if err != nil {
 		t.Errorf("err not nil, got %v", err)
 	}
-	if !(diff.amount == amount(8)) {
-		t.Errorf("sum.amount != %v, got %v", 8, sum.amount)
+	if !(diff.value == 8) {
+		t.Errorf("sum.value != %v, got %v", 8, sum.value)
 	}
 	if !diff.currency.Equals(&EUR) {
 		t.Errorf("sum.currency != %v", diff.currency)
@@ -37,8 +37,8 @@ func TestMoney_Arithmetic(t *testing.T) {
 	if err != nil {
 		t.Errorf("err not nil, got %v", err)
 	}
-	if !(prod.amount == amount(20)) {
-		t.Errorf("prod.amount != %v, got %v", 8, prod.amount)
+	if !(prod.value == 20) {
+		t.Errorf("prod.value != %v, got %v", 8, prod.value)
 	}
 	if !prod.currency.Equals(&EUR) {
 		t.Errorf("prod.currency != %v", prod.currency)
@@ -53,12 +53,12 @@ func TestMoney_Arithmetic(t *testing.T) {
 	if len(ps) != 2 {
 		t.Errorf("ps.len != 2, got %v", 2)
 	}
-	if r.amount != 0 {
-		t.Errorf("ps.reminder != 0, got %v", r.amount)
+	if r.value != 0 {
+		t.Errorf("ps.reminder != 0, got %v", r.value)
 	}
 	for i, p := range ps {
-		if p.amount != 5 {
-			t.Errorf("ps[%v].amount != 5, got %v", i, p.amount)
+		if p.value != 5 {
+			t.Errorf("ps[%v].value != 5, got %v", i, p.value)
 		}
 		if !p.currency.Equals(&EUR) {
 			t.Errorf("ps[%v].currency != EUR, got %v", i, p.currency)
@@ -70,8 +70,8 @@ func TestMoney_Arithmetic(t *testing.T) {
 	if err != nil {
 		t.Errorf("err not nil, got %v", err)
 	}
-	if rem.amount != 1 {
-		t.Errorf("expected remainder amount to be 1, got %v", rem.amount)
+	if rem.value != 1 {
+		t.Errorf("expected remainder value to be 1, got %v", rem.value)
 	}
 	if !rem.currency.Equals(&EUR) {
 		t.Errorf("expected currency to be EUR, got %v", rem.currency)
@@ -80,8 +80,8 @@ func TestMoney_Arithmetic(t *testing.T) {
 		t.Errorf("expected parties to be 3, got %v", len(ms))
 	}
 	for i := 0; i < 3; i++ {
-		if ms[i].amount != 3 {
-			t.Errorf("expected %v. party allocation amount to be 3, got %v", i, ms[i].amount)
+		if ms[i].value != 3 {
+			t.Errorf("expected %v. party allocation value to be 3, got %v", i, ms[i].value)
 		}
 		if !ms[i].currency.Equals(&EUR) {
 			t.Errorf("expected %v. party allocation currency to be EUR, got %v", i, ms[i].currency)

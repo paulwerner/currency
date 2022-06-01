@@ -1,4 +1,4 @@
-package money
+package currency
 
 import (
 	"math"
@@ -16,10 +16,10 @@ func TestCalc_boundaries(t *testing.T) {
 
 func TestCalc_addition(t *testing.T) {
 	for i, tc := range []struct {
-		x      amount
-		y      amount
+		x      int
+		y      int
 		wantOk bool
-		wantZ  amount
+		wantZ  int
 	}{
 		// base cases
 		{0, 0, true, 0},
@@ -55,10 +55,10 @@ func TestCalc_addition(t *testing.T) {
 
 func TestCalc_subtraction(t *testing.T) {
 	for i, tc := range []struct {
-		x      amount
-		y      amount
+		x      int
+		y      int
 		wantOk bool
-		wantZ  amount
+		wantZ  int
 	}{
 		// base cases
 		{0, 0, true, 0},
@@ -94,10 +94,10 @@ func TestCalc_subtraction(t *testing.T) {
 
 func TestCalc_multiplication(t *testing.T) {
 	for i, tc := range []struct {
-		x      amount
+		x      int
 		m      int
 		wantOk bool
-		wantZ  amount
+		wantZ  int
 	}{
 		// base cases
 		{0, 0, true, 0},
@@ -138,10 +138,10 @@ func TestCalc_multiplication(t *testing.T) {
 
 func TestCalc_division(t *testing.T) {
 	for i, tc := range []struct {
-		x      amount
+		x      int
 		d      int
 		wantOk bool
-		wantZ  amount
+		wantZ  int
 	}{
 		// base cases
 		{0, 1, true, 0},
@@ -190,10 +190,10 @@ func TestCalc_division(t *testing.T) {
 
 func TestCalc_modulo(t *testing.T) {
 	for i, tc := range []struct {
-		x      amount
+		x      int
 		d      int
 		wantOk bool
-		wantZ  amount
+		wantZ  int
 	}{
 		// base cases
 		{0, 1, true, 0},
@@ -241,11 +241,11 @@ func TestCalc_modulo(t *testing.T) {
 
 func TestCalc_allocation(t *testing.T) {
 	for i, tc := range []struct {
-		x      amount
+		x      int
 		r      int
 		s      int
 		wantOk bool
-		wantZ  amount
+		wantZ  int
 	}{
 		// error cases
 		{1, -1, 1, false, 0},
@@ -271,8 +271,8 @@ func TestCalc_allocation(t *testing.T) {
 
 func TestCalc_negation(t *testing.T) {
 	for i, tc := range []struct {
-		x    amount
-		want amount
+		x    int
+		want int
 	}{
 		{1, -1},
 		{-1, -1},
@@ -289,8 +289,8 @@ func TestCalc_negation(t *testing.T) {
 }
 func TestCalc_absolute(t *testing.T) {
 	for i, tc := range []struct {
-		x      amount
-		want   amount
+		x      int
+		want   int
 		wantOk bool
 	}{
 		{1, 1, true},
@@ -314,9 +314,9 @@ func TestCalc_absolute(t *testing.T) {
 
 func TestCalc_power(t *testing.T) {
 	for i, tc := range []struct {
-		x      amount
+		x      int
 		e      int
-		want   amount
+		want   int
 		wantOk bool
 	}{
 		// base cases
@@ -361,9 +361,9 @@ func TestCalc_power(t *testing.T) {
 
 func TestCalc_rounding(t *testing.T) {
 	for i, tc := range []struct {
-		x      amount
+		x      int
 		s      int
-		want   amount
+		want   int
 		wantOk bool
 	}{
 		// positive values
