@@ -1,7 +1,7 @@
 // Code generated. DO NOT EDIT.
 package currency
 
-import "github.com/paulwerner/gocurrency/internal/data"
+import "github.com/paulwerner/currency/internal/data"
 
 const (
 	xxx = 288

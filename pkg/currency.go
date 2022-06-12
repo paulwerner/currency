@@ -3,7 +3,7 @@ package currency
 import (
 	"errors"
 
-	"github.com/paulwerner/gocurrency/internal/data"
+	"github.com/paulwerner/currency/internal/data"
 )
 
 // Kind determines the rounding and rendering properties of the currency value

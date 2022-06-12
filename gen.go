@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/paulwerner/gocurrency/internal/data"
-	"github.com/paulwerner/gocurrency/internal/gen"
+	"github.com/paulwerner/currency/internal/data"
+	"github.com/paulwerner/currency/internal/gen"
 	"golang.org/x/text/unicode/cldr"
 )
 
@@ -38,7 +38,7 @@ func main() {
 	w := gen.NewWriter()
 	defer w.WriteGoFile(*outputFile, "currency")
 
-	fmt.Fprintln(w, `import "github.com/paulwerner/gocurrency/internal/data"`)
+	fmt.Fprintln(w, `import "github.com/paulwerner/currency/internal/data"`)
 
 	b := builder{}
 	b.genCurrencies(w, db.Supplemental())
