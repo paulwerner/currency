@@ -1,35 +1,38 @@
-# GoCurrency
+# Currency
 
-GoCurrency brings handling of monetary value to the Go programming language. As the phrase says "time is money", it's build from the ground up for high performance and accuracy using up to date data from the Unicode CLDR Project.
-
+Currency is a library for handling monetary values in Go (Golang). 
+Its data is based on the CLDR project which can be updated for newer versions using the internal generator.
 
 ## Quick start
-`go get github.com/paulwerner/gocurrency`
+`go get github.com/paulwerner/currency`
 
 
 ## Features
 - low ops and memory allocation
-- precise arithmetic (add, sub, split, multiply) with proper rounding
-- support for 25+ currencies
-- display format based on region or accounting format
+- precise arithmetic with overflow checks
+- support for 300+ currencies
+- locale based displaying
 - allow custom de-/serializer
-- region and currency generation based on CLDR data
-...
+- data generated based on the CLDR project
 
 
-## Usage
-...
+## Development
+- [x] add calculator
+- [x] add CLDR data fetching
+- [x] add code generator
+- [x] add currency data generation
+- [ ] add locale data generation
+- [ ] add locale based formatting
+- [ ] add kind based displaying (standard, cash, accounting)
+- [ ] add de-/serialization
+- [ ] add documentation
 
 
-## COde Generation
-`go generate`
-...
+## Code Generation
+`make gen`
 
 
-## Inspired by
+## Inspired By
 - https://github.com/Rhymond/go-money
 - https://pkg.go.dev/golang.org/x/text/currency
-
-## Contribution
-...
 
