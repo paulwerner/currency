@@ -3,10 +3,10 @@ package currency
 import "errors"
 
 var (
-	ErrCurrencyMismatch = errors.New("money: currency mismatch")
-	ErrInvalidOperation = errors.New("money: invalid operation")
-	ErrSplitNegative    = errors.New("money: split must be positive")
-	ErrNoRatioSpecified = errors.New("money: no ratio specified")
+	ErrCurrencyMismatch = errors.New("currency mismatch")
+	ErrInvalidOperation = errors.New("invalid operation")
+	ErrSplitNegative    = errors.New("split negative")
+	ErrNoRatioSpecified = errors.New("no ratio specified")
 )
 
 type Amount struct {
