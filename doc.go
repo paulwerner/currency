@@ -20,8 +20,12 @@
 //	parts, rest, _ := total.Alloc(50, 30, 20)
 //	fmt.Println(total, parts, rest)
 //
-// Locale-based formatting is planned but not yet implemented; see
-// docs/ROADMAP.md for the current state of the roadmap.
+// Amount.String renders a locale-independent "EUR 12.34" form;
+// Amount.Display renders an amount for a BCP 47 locale using the CLDR
+// data, e.g. "19,99 €" for "de" and "€19.99" for "en". Kind-based
+// displaying (accounting parentheses, cash scales) is planned but not
+// yet implemented; see docs/ROADMAP.md for the current state of the
+// roadmap.
 package currency
 
 //go:generate go run ./internal/cldrgen

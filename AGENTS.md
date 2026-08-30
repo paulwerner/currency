@@ -6,10 +6,11 @@ Guidance for AI agents and human contributors working on this repository.
 
 `github.com/paulwerner/currency` is a dependency-light Go library for
 handling monetary values: overflow-checked integer arithmetic in currency
-minor units, ISO 4217 currency metadata, and CLDR-derived rounding rules
-(including cash rounding increments such as 0.05 CHF). Locale-based
-formatting is planned; see `docs/ROADMAP.md` for open items and design
-notes before starting work on them.
+minor units, ISO 4217 currency metadata, CLDR-derived rounding rules
+(including cash rounding increments such as 0.05 CHF), and locale-based
+formatting (`Amount.Display`). Kind-based displaying is planned; see
+`docs/ROADMAP.md` for open items and design notes before starting work
+on them.
 
 ## Layout
 
@@ -18,6 +19,7 @@ notes before starting work on them.
 | `amount.go` | `Amount`: arithmetic, comparisons, split/alloc, rounding, JSON |
 | `calc.go` | Overflow-checked integer primitives (`add`, `mul`, `round`, ...) |
 | `currency.go` | `Currency`, `Kind` (Standard/Cash/Accounting), ISO parsing |
+| `display.go` | Locale lookup and locale-based formatting (`Amount.Display`) |
 | `common.go` | **Generated** from `internal/cldrgen/gen_common.go` — do not edit |
 | `tables.go` | **Generated** CLDR currency and locale tables — do not edit |
 | `doc.go` | Package docs and the `go:generate` directive |
