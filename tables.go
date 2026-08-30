@@ -111,3 +111,59 @@ const currency data.Table = "" + // Size: 1220 bytes
 	"\x44\x09\x5a\x57\x4c\x00\x5a\x57\x52\x00\xff\xff\xff\xff"
 
 const numCurrencies = 303
+
+// localePatterns holds the parsed currency format patterns referenced by
+// the locales table, of type localePattern, defined in gen_common.go.
+// Entries are referenced by 1-based index; 0 means "inherited".
+var localePatterns = [...]localePattern{
+	{posPrefix: "¤\u00a0", posSuffix: "", negPrefix: "-¤\u00a0", negSuffix: "", primGroup: 3, secGroup: 3},
+	{posPrefix: "¤", posSuffix: "", negPrefix: "(¤", negSuffix: ")", primGroup: 3, secGroup: 3},
+	{posPrefix: "", posSuffix: "\u00a0¤", negPrefix: "-", negSuffix: "\u00a0¤", primGroup: 3, secGroup: 3},
+	{posPrefix: "¤\u00a0", posSuffix: "", negPrefix: "¤-", negSuffix: "", primGroup: 3, secGroup: 3},
+	{posPrefix: "¤", posSuffix: "", negPrefix: "-¤", negSuffix: "", primGroup: 3, secGroup: 3},
+	{posPrefix: "¤", posSuffix: "", negPrefix: "-¤", negSuffix: "", primGroup: 3, secGroup: 2},
+	{posPrefix: "", posSuffix: "\u00a0¤", negPrefix: "(", negSuffix: "\u00a0¤)", primGroup: 3, secGroup: 3},
+	{posPrefix: "¤\u00a0", posSuffix: "", negPrefix: "¤\u00a0-", negSuffix: "", primGroup: 3, secGroup: 3},
+	{posPrefix: "¤\u00a0", posSuffix: "", negPrefix: "(¤\u00a0", negSuffix: ")", primGroup: 3, secGroup: 3},
+}
+
+// locales holds the latn number-formatting data of each supported locale
+// as a sparse overlay over its parent locale, of type localeData, defined
+// in gen_common.go. The root locale is at index 0; the remaining entries
+// are sorted by name. Currency symbols are restricted to the currencies
+// listed in the currency constants above.
+var locales = [...]localeData{
+	{name: "root", decimal: ".", group: ",", minus: "-", standard: 1, accounting: 1, symbols: []currencySymbol{{"AUD", "A$"}, {"BRL", "R$"}, {"CAD", "CA$"}, {"CNY", "CN¥"}, {"EUR", "€"}, {"GBP", "£"}, {"HKD", "HK$"}, {"INR", "₹"}, {"JPY", "JP¥"}, {"KRW", "₩"}, {"MXN", "MX$"}, {"NZD", "NZ$"}, {"TWD", "NT$"}, {"USD", "US$"}, {"XXX", "¤"}}},
+	{name: "ar", minus: "\u200e-", accounting: 2, symbols: []currencySymbol{{"AUD", "AU$"}, {"CHF", "CHF"}, {"DKK", "DKK"}, {"GBP", "UK£"}, {"IDR", "IDR"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "ر.س.\u200f"}, {"SEK", "SEK"}, {"THB", "฿"}, {"TRY", "TRY"}, {"ZAR", "ZAR"}}},
+	{name: "da", decimal: ",", group: ".", standard: 3, accounting: 3, symbols: []currencySymbol{{"AUD", "AU$"}, {"CHF", "CHF"}, {"DKK", "kr."}, {"IDR", "IDR"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "฿"}, {"TRY", "TRY"}, {"ZAR", "ZAR"}}},
+	{name: "de", decimal: ",", group: ".", standard: 3, accounting: 3, symbols: []currencySymbol{{"AUD", "AU$"}, {"CHF", "CHF"}, {"DKK", "DKK"}, {"IDR", "IDR"}, {"JPY", "¥"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "฿"}, {"TRY", "TRY"}, {"USD", "$"}, {"XAG", "XAG"}, {"XAU", "XAU"}, {"XPD", "XPD"}, {"XPT", "XPT"}, {"XTS", "XTS"}, {"XXX", "XXX"}, {"ZAR", "ZAR"}}},
+	{name: "de-AT", parent: 3, group: "\u00a0", standard: 1},
+	{name: "de-CH", parent: 3, decimal: ".", group: "’", standard: 4, symbols: []currencySymbol{{"EUR", "EUR"}}},
+	{name: "en", standard: 5, accounting: 2, symbols: []currencySymbol{{"JPY", "¥"}, {"USD", "$"}}},
+	{name: "en-AU", parent: 6, symbols: []currencySymbol{{"AUD", "$"}, {"BRL", "BRL"}, {"CAD", "CAD"}, {"CHF", "CHF"}, {"CNY", "CNY"}, {"EUR", "EUR"}, {"GBP", "GBP"}, {"HKD", "HKD"}, {"IDR", "IDR"}, {"INR", "INR"}, {"JPY", "JPY"}, {"KRW", "KRW"}, {"MXN", "MXN"}, {"NOK", "NOK"}, {"NZD", "NZD"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"TRY", "TRY"}, {"TWD", "TWD"}, {"USD", "USD"}, {"ZAR", "ZAR"}}},
+	{name: "en-CA", parent: 6, symbols: []currencySymbol{{"CAD", "$"}, {"JPY", "JP¥"}, {"USD", "US$"}}},
+	{name: "en-GB", parent: 6, symbols: []currencySymbol{{"JPY", "JP¥"}, {"USD", "US$"}}},
+	{name: "en-IN", parent: 6, standard: 6, symbols: []currencySymbol{{"JPY", "JP¥"}}},
+	{name: "en-NZ", parent: 6, symbols: []currencySymbol{{"JPY", "JP¥"}, {"NZD", "$"}, {"USD", "US$"}}},
+	{name: "es", decimal: ",", group: ".", standard: 3, accounting: 3, symbols: []currencySymbol{{"AUD", "AUD"}, {"BRL", "BRL"}, {"CAD", "CAD"}, {"CHF", "CHF"}, {"CNY", "CNY"}, {"DKK", "DKK"}, {"GBP", "GBP"}, {"HKD", "HKD"}, {"IDR", "IDR"}, {"INR", "INR"}, {"JPY", "JPY"}, {"KRW", "KRW"}, {"MXN", "MXN"}, {"NOK", "NOK"}, {"NZD", "NZD"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "฿"}, {"TRY", "TRY"}, {"TWD", "TWD"}, {"ZAR", "ZAR"}}},
+	{name: "es-MX", parent: 12, decimal: ".", group: ",", standard: 5, accounting: 5, symbols: []currencySymbol{{"EUR", "EUR"}, {"MXN", "$"}, {"THB", "THB"}, {"USD", "USD"}}},
+	{name: "fi", decimal: ",", group: "\u00a0", minus: "−", standard: 3, accounting: 3, symbols: []currencySymbol{{"AUD", "AUD"}, {"BRL", "BRL"}, {"CAD", "CAD"}, {"CHF", "CHF"}, {"CNY", "CNY"}, {"DKK", "DKK"}, {"HKD", "HKD"}, {"IDR", "IDR"}, {"INR", "INR"}, {"JPY", "¥"}, {"KRW", "KRW"}, {"MXN", "MXN"}, {"NOK", "NOK"}, {"NZD", "NZD"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "THB"}, {"TRY", "TRY"}, {"TWD", "TWD"}, {"USD", "$"}, {"XAG", "XAG"}, {"XAU", "XAU"}, {"XPD", "XPD"}, {"XPT", "XPT"}, {"XTS", "XTS"}, {"XXX", "XXX"}, {"ZAR", "ZAR"}}},
+	{name: "fr", decimal: ",", group: "\u202f", standard: 3, accounting: 7, symbols: []currencySymbol{{"AUD", "$AU"}, {"CAD", "$CA"}, {"CHF", "CHF"}, {"CNY", "CNY"}, {"DKK", "DKK"}, {"GBP", "£GB"}, {"HKD", "HKD"}, {"IDR", "IDR"}, {"JPY", "JPY"}, {"MXN", "$MX"}, {"NOK", "NOK"}, {"NZD", "$NZ"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "THB"}, {"TRY", "TRY"}, {"TWD", "TWD"}, {"USD", "$US"}, {"XAG", "XAG"}, {"XAU", "XAU"}, {"XPD", "XPD"}, {"XPT", "XPT"}, {"XTS", "XTS"}, {"XXX", "XXX"}, {"ZAR", "ZAR"}}},
+	{name: "fr-CA", parent: 15, group: "\u00a0", symbols: []currencySymbol{{"AUD", "$\u00a0AU"}, {"CAD", "$"}, {"CNY", "CN¥"}, {"GBP", "£"}, {"HKD", "$\u00a0HK"}, {"INR", "INR"}, {"JPY", "¥"}, {"KRW", "KRW"}, {"MXN", "MXN"}, {"NZD", "$\u00a0NZ"}, {"USD", "$\u00a0US"}}},
+	{name: "fr-CH", parent: 15},
+	{name: "id", decimal: ",", group: ".", standard: 5, accounting: 5, symbols: []currencySymbol{{"AUD", "AU$"}, {"CHF", "CHF"}, {"DKK", "DKK"}, {"IDR", "Rp"}, {"INR", "Rs"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "฿"}, {"TRY", "TRY"}, {"XXX", "XXX"}, {"ZAR", "ZAR"}}},
+	{name: "it", decimal: ",", group: ".", standard: 3, accounting: 3, symbols: []currencySymbol{{"BRL", "BRL"}, {"HKD", "HKD"}, {"INR", "INR"}, {"JPY", "JPY"}, {"KRW", "KRW"}, {"MXN", "MXN"}, {"PLN", "PLN"}, {"THB", "฿"}, {"TWD", "TWD"}, {"USD", "USD"}}},
+	{name: "ja", standard: 5, accounting: 2, symbols: []currencySymbol{{"CHF", "CHF"}, {"CNY", "元"}, {"DKK", "DKK"}, {"IDR", "IDR"}, {"JPY", "￥"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "THB"}, {"TRY", "TRY"}, {"USD", "$"}, {"XAG", "XAG"}, {"XAU", "XAU"}, {"XPD", "XPD"}, {"XPT", "XPT"}, {"XTS", "XTS"}, {"XXX", "XXX"}, {"ZAR", "ZAR"}}},
+	{name: "ko", standard: 5, accounting: 2, symbols: []currencySymbol{{"AUD", "AU$"}, {"CHF", "CHF"}, {"DKK", "DKK"}, {"IDR", "IDR"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "THB"}, {"TRY", "TRY"}, {"ZAR", "ZAR"}}},
+	{name: "nb", decimal: ",", group: "\u00a0", minus: "−", standard: 8, accounting: 9, symbols: []currencySymbol{{"AUD", "AUD"}, {"BRL", "BRL"}, {"CAD", "CAD"}, {"CHF", "CHF"}, {"CNY", "CNY"}, {"DKK", "DKK"}, {"HKD", "HKD"}, {"IDR", "IDR"}, {"INR", "INR"}, {"JPY", "JPY"}, {"KRW", "KRW"}, {"MXN", "MXN"}, {"NOK", "kr"}, {"NZD", "NZD"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "THB"}, {"TRY", "TRY"}, {"TWD", "TWD"}, {"USD", "USD"}, {"XAG", "XAG"}, {"XAU", "XAU"}, {"XPD", "XPD"}, {"XPT", "XPT"}, {"XTS", "XTS"}, {"XXX", "XXX"}, {"ZAR", "ZAR"}}},
+	{name: "nl", decimal: ",", group: ".", standard: 8, accounting: 9, symbols: []currencySymbol{{"AUD", "AU$"}, {"CAD", "C$"}, {"CHF", "CHF"}, {"DKK", "DKK"}, {"IDR", "IDR"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "฿"}, {"TRY", "TRY"}, {"XAG", "XAG"}, {"XAU", "XAU"}, {"XPD", "XPD"}, {"XPT", "XPT"}, {"XTS", "XTS"}, {"XXX", "XXX"}, {"ZAR", "ZAR"}}},
+	{name: "pl", decimal: ",", group: "\u00a0", standard: 3, accounting: 7, symbols: []currencySymbol{{"AUD", "AUD"}, {"CAD", "CAD"}, {"CHF", "CHF"}, {"CNY", "CNY"}, {"DKK", "DKK"}, {"GBP", "GBP"}, {"HKD", "HKD"}, {"IDR", "IDR"}, {"INR", "INR"}, {"JPY", "JPY"}, {"KRW", "KRW"}, {"MXN", "MXN"}, {"NOK", "NOK"}, {"NZD", "NZD"}, {"PLN", "zł"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "THB"}, {"TRY", "TRY"}, {"TWD", "TWD"}, {"USD", "USD"}, {"ZAR", "ZAR"}}},
+	{name: "pt", decimal: ",", group: ".", symbols: []currencySymbol{{"AUD", "AU$"}, {"CHF", "CHF"}, {"DKK", "DKK"}, {"IDR", "IDR"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "฿"}, {"TRY", "TRY"}, {"ZAR", "ZAR"}}},
+	{name: "pt-PT", parent: 25, group: "\u00a0", standard: 3, accounting: 7},
+	{name: "ru", decimal: ",", group: "\u00a0", standard: 3, accounting: 3, symbols: []currencySymbol{{"CHF", "CHF"}, {"DKK", "DKK"}, {"IDR", "IDR"}, {"JPY", "¥"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "₽"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "฿"}, {"TRY", "TRY"}, {"USD", "$"}, {"XXX", "XXXX"}, {"ZAR", "ZAR"}}},
+	{name: "sv", decimal: ",", group: "\u00a0", minus: "−", standard: 3, accounting: 3, symbols: []currencySymbol{{"AUD", "AUD"}, {"BRL", "BR$"}, {"CHF", "CHF"}, {"CNY", "CNY"}, {"DKK", "Dkr"}, {"GBP", "GBP"}, {"HKD", "HKD"}, {"IDR", "IDR"}, {"INR", "INR"}, {"JPY", "JPY"}, {"KRW", "KRW"}, {"NOK", "Nkr"}, {"NZD", "NZD"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "kr"}, {"THB", "THB"}, {"TRY", "TRY"}, {"TWD", "TWD"}, {"XTS", "XTS"}, {"ZAR", "ZAR"}}},
+	{name: "th", standard: 5, accounting: 2, symbols: []currencySymbol{{"AUD", "AU$"}, {"CHF", "CHF"}, {"DKK", "DKK"}, {"IDR", "IDR"}, {"JPY", "¥"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "฿"}, {"TRY", "TRY"}, {"XAG", "XAG"}, {"XAU", "XAU"}, {"XPD", "XPD"}, {"XPT", "XPT"}, {"XTS", "XTS"}, {"XXX", "XXX"}, {"ZAR", "ZAR"}}},
+	{name: "tr", decimal: ",", group: ".", standard: 5, accounting: 2, symbols: []currencySymbol{{"AUD", "AU$"}, {"CHF", "CHF"}, {"DKK", "DKK"}, {"IDR", "IDR"}, {"JPY", "¥"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "฿"}, {"TRY", "₺"}, {"USD", "$"}, {"XAG", "XAG"}, {"XAU", "XAU"}, {"XPT", "XPT"}, {"XTS", "XTS"}, {"ZAR", "ZAR"}}},
+	{name: "zh", standard: 5, accounting: 2, symbols: []currencySymbol{{"AUD", "AU$"}, {"CHF", "CHF"}, {"CNY", "¥"}, {"DKK", "DKK"}, {"IDR", "IDR"}, {"KRW", "￦"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "THB"}, {"TRY", "TRY"}, {"XAG", "XAG"}, {"XAU", "XAU"}, {"XPD", "XPD"}, {"XPT", "XPT"}, {"XTS", "XTS"}, {"XXX", "XXX"}, {"ZAR", "ZAR"}}},
+	{name: "zh-Hant", standard: 5, accounting: 2, symbols: []currencySymbol{{"AUD", "AU$"}, {"CHF", "CHF"}, {"DKK", "DKK"}, {"IDR", "IDR"}, {"JPY", "¥"}, {"KRW", "￦"}, {"NOK", "NOK"}, {"PLN", "PLN"}, {"RUB", "RUB"}, {"SAR", "SAR"}, {"SEK", "SEK"}, {"THB", "THB"}, {"TRY", "TRY"}, {"TWD", "$"}, {"XAG", "XAG"}, {"XAU", "XAU"}, {"XPD", "XPD"}, {"XPT", "XPT"}, {"XTS", "XTS"}, {"XXX", "XXX"}, {"ZAR", "ZAR"}}},
+}

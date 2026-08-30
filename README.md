@@ -60,8 +60,7 @@ func main() {
 
 See [AGENTS.md](AGENTS.md) for layout, conventions, and how to build and
 test, and [docs/ROADMAP.md](docs/ROADMAP.md) for the remaining roadmap
-(locale data generation, locale-based formatting, kind-based displaying)
-and the change log.
+(locale-based formatting, kind-based displaying) and the change log.
 
 ```sh
 make build test vet fmt-check   # what CI runs

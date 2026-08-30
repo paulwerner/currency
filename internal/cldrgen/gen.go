@@ -43,6 +43,7 @@ func main() {
 
 	b := builder{}
 	b.genCurrencies(w, db.Supplemental())
+	b.genLocales(w, db)
 }
 
 var constants = []string{
