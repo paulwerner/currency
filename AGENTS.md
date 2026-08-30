@@ -7,10 +7,11 @@ Guidance for AI agents and human contributors working on this repository.
 `github.com/paulwerner/currency` is a dependency-light Go library for
 handling monetary values: overflow-checked integer arithmetic in currency
 minor units, ISO 4217 currency metadata, CLDR-derived rounding rules
-(including cash rounding increments such as 0.05 CHF), and locale-based
-formatting (`Amount.Display`). Kind-based displaying is planned; see
-`docs/ROADMAP.md` for open items and design notes before starting work
-on them.
+(including cash rounding increments such as 0.05 CHF), locale-based
+formatting (`Amount.Display`), and kind-based displaying
+(`Amount.DisplayKind`: accounting patterns, cash rounding and scales).
+New feature work should be specified in `docs/ROADMAP.md` first; see it
+for design notes and the change log.
 
 ## Layout
 
@@ -19,7 +20,7 @@ on them.
 | `amount.go` | `Amount`: arithmetic, comparisons, split/alloc, rounding, JSON |
 | `calc.go` | Overflow-checked integer primitives (`add`, `mul`, `round`, ...) |
 | `currency.go` | `Currency`, `Kind` (Standard/Cash/Accounting), ISO parsing |
-| `display.go` | Locale lookup and locale-based formatting (`Amount.Display`) |
+| `display.go` | Locale lookup and locale-aware display (`Display`, `DisplayKind`) |
 | `common.go` | **Generated** from `internal/cldrgen/gen_common.go` — do not edit |
 | `tables.go` | **Generated** CLDR currency and locale tables — do not edit |
 | `doc.go` | Package docs and the `go:generate` directive |
@@ -88,7 +89,7 @@ make gen         # runs go generate against an existing ./core.zip
 
 ## Roadmap discipline
 
-Open feature work (locale data generation, locale-based formatting,
-kind-based display) is specified in `docs/ROADMAP.md`, including design
-notes agreed during review. Read it first; update it (status table and,
-when relevant, the change log) whenever you complete or re-scope an item.
+Feature work is specified in `docs/ROADMAP.md`, including design notes
+agreed during review; new feature work gets specified there before
+implementation starts. Read it first; update it (status table and, when
+relevant, the change log) whenever you complete or re-scope an item.

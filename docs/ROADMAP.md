@@ -16,29 +16,42 @@ brought the repository to its current state.
 | Documentation (package docs, AGENTS.md, README) | ✅ done |
 | Locale data generation | ✅ done |
 | Locale-based formatting | ✅ done |
-| Kind-based displaying (standard, cash, accounting) | ⏳ partially prepared |
+| Kind-based displaying (standard, cash, accounting) | ✅ done |
 
 ## Open items
 
-### 1. Kind-based displaying
-
-The groundwork is merged: `Kind` carries a `format` style, so `Accounting`
-is a distinct value from `Standard`, `Cash` rounding (e.g. 0.05 CHF,
-0.50 DKK) works via `Amount.Round(Cash)`, and the locale formatter's
-internal `display` method (see the change log) already takes the
-`formatStyle` selecting between the standard and accounting patterns.
-
-Remaining work:
-
-- `Amount.DisplayKind(locale string, k Kind) string` — `Cash` applies cash
-  rounding and the cash scale before rendering; `Accounting` uses the
-  accounting pattern (negative amounts in parentheses where the locale says
-  so, e.g. `(€19.99)` for `en`).
+None — the roadmap above is complete. New feature work should be
+specified here (design notes first, agreed in review) before
+implementation starts.
 
 ## Build and change log
 
 Build/verify with `make build test vet fmt-check`; regenerate tables with
 `make gen-fetch` (fetches CLDR `core.zip`, then runs `go generate`).
+
+### Kind-based displaying (`claude/roadmap-item-pr-locals-74ruxf`, 2026-08)
+
+- `Amount.DisplayKind(locale string, k Kind) string` completes the
+  roadmap: `Standard` renders exactly like `Display`; `Accounting`
+  selects the locale's accounting pattern (negative amounts in
+  parentheses where the locale says so: `(€19.99)` for `en`,
+  `(1 234,56 €)` for `fr`, while `de` keeps its minus form);
+  `Cash` applies the currency's cash rounding and renders at the cash
+  scale (`CHF 10.15` from 10.13, `12,50 kr.` for DKK's 0.50 increments,
+  and `12 kr` for SEK/NOK whose cash scale is 0). Ties round away from
+  zero, matching `Amount.Round`.
+- The internal formatter now takes an explicit value and scale
+  (`display`/`formatDigits`), with the cash path re-scaling the rounded
+  value exactly (the rounded value is a multiple of the cash step).
+- Overflow edge documented in the `DisplayKind` doc comment: a value
+  within half a cash step of the int bounds (including `math.MinInt`)
+  cannot be cash-rounded and is rendered unrounded at the standard
+  scale instead of silently changing magnitude; a test pins that the
+  fallback equals `Display`.
+- Tests cover accounting patterns across locales (including currency
+  spacing inside parentheses), cash rounding for CHF/CAD/DKK/SEK/NOK,
+  rounding to zero selecting the positive pattern, and cash being a
+  no-op for currencies without special cash data.
 
 ### Locale-based formatting (`claude/roadmap-item-pr-locals-74ruxf`, 2026-08)
 

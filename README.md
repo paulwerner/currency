@@ -40,6 +40,11 @@ func main() {
 	fmt.Println(price.Display("de")) // 19,99 €
 	fmt.Println(price.Display("en")) // €19.99
 
+	// kind-based display: accounting parentheses, cash rounding
+	debt, _ := price.Neg()
+	fmt.Println(debt.DisplayKind("en", currency.Accounting)) // (€19.99)
+	fmt.Println(cash.DisplayKind("en", currency.Cash))       // CHF 10.00
+
 	// parsing and (de-)serialization
 	a, _ := currency.NewFromISO(500, "DKK")
 	b, _ := a.MarshalJSON()
@@ -60,14 +65,15 @@ func main() {
 - JSON de-/serialization
 - locale-based formatting from CLDR data: `Display("de-CH")` → `EUR 1’234.56`,
   with BCP 47 tag normalization and parent-chain fallback
-- kind-based displaying (accounting parentheses, cash scales) is
-  planned — see the [roadmap](docs/ROADMAP.md)
+- kind-based displaying: `DisplayKind("en", currency.Accounting)` →
+  `($12.34)` for negatives, `DisplayKind("sv", currency.Cash)` → `12 kr`
+  (cash rounding at the cash scale)
 
 ## Development
 
 See [AGENTS.md](AGENTS.md) for layout, conventions, and how to build and
-test, and [docs/ROADMAP.md](docs/ROADMAP.md) for the remaining roadmap
-(kind-based displaying) and the change log.
+test, and [docs/ROADMAP.md](docs/ROADMAP.md) for the roadmap's design
+notes and the change log.
 
 ```sh
 make build test vet fmt-check   # what CI runs
