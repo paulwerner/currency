@@ -3,25 +3,18 @@ package currency
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
+	"strconv"
 	"testing"
 )
 
-func mustAmount(t *testing.T, v int, cur Currency) *Amount {
-	t.Helper()
-	a, err := NewAmount(v, cur)
-	if err != nil {
-		t.Fatalf("NewAmount(%v, %v): unexpected error %v", v, &cur, err)
-	}
-	return a
-}
-
 func TestAmount_New(t *testing.T) {
-	a := mustAmount(t, 1234, EUR)
+	a := NewAmount(1234, EUR)
 	if a.Amount() != 1234 {
 		t.Errorf("Amount() = %v, want 1234", a.Amount())
 	}
-	if !a.Currency().Equals(&EUR) {
+	if !a.Currency().Equals(EUR) {
 		t.Errorf("Currency() = %v, want EUR", a.Currency())
 	}
 }
@@ -31,7 +24,7 @@ func TestAmount_NewFromISO(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if a.Amount() != 500 || !a.Currency().Equals(&USD) {
+	if a.Amount() != 500 || !a.Currency().Equals(USD) {
 		t.Errorf("got %v, want USD 5.00", a)
 	}
 
@@ -40,7 +33,7 @@ func TestAmount_NewFromISO(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if !a.Currency().Equals(&XXX) {
+	if !a.Currency().Equals(XXX) {
 		t.Errorf("currency = %v, want XXX", a.Currency())
 	}
 
@@ -66,10 +59,10 @@ func TestAmount_ZeroValue(t *testing.T) {
 }
 
 func TestAmount_Arithmetic(t *testing.T) {
-	m := mustAmount(t, 10, EUR)
+	m := NewAmount(10, EUR)
 
 	// Addition
-	m2 := mustAmount(t, 2, EUR)
+	m2 := NewAmount(2, EUR)
 
 	sum, err := m.Add(m2)
 	if err != nil {
@@ -78,7 +71,7 @@ func TestAmount_Arithmetic(t *testing.T) {
 	if sum.Amount() != 12 {
 		t.Errorf("sum.value != %v", 12)
 	}
-	if !sum.Currency().Equals(&EUR) {
+	if !sum.Currency().Equals(EUR) {
 		t.Errorf("sum.currency != %v", sum.Currency())
 	}
 
@@ -90,7 +83,7 @@ func TestAmount_Arithmetic(t *testing.T) {
 	if diff.Amount() != 8 {
 		t.Errorf("diff.value != %v, got %v", 8, diff.Amount())
 	}
-	if !diff.Currency().Equals(&EUR) {
+	if !diff.Currency().Equals(EUR) {
 		t.Errorf("diff.currency != %v", diff.Currency())
 	}
 
@@ -102,7 +95,7 @@ func TestAmount_Arithmetic(t *testing.T) {
 	if prod.Amount() != 20 {
 		t.Errorf("prod.value != %v, got %v", 20, prod.Amount())
 	}
-	if !prod.Currency().Equals(&EUR) {
+	if !prod.Currency().Equals(EUR) {
 		t.Errorf("prod.currency != %v", prod.Currency())
 	}
 
@@ -121,7 +114,7 @@ func TestAmount_Arithmetic(t *testing.T) {
 		if p.Amount() != 5 {
 			t.Errorf("ps[%v].value != 5, got %v", i, p.Amount())
 		}
-		if !p.Currency().Equals(&EUR) {
+		if !p.Currency().Equals(EUR) {
 			t.Errorf("ps[%v].currency != EUR, got %v", i, p.Currency())
 		}
 	}
@@ -134,7 +127,7 @@ func TestAmount_Arithmetic(t *testing.T) {
 	if rem.Amount() != 1 {
 		t.Errorf("expected remainder value to be 1, got %v", rem.Amount())
 	}
-	if !rem.Currency().Equals(&EUR) {
+	if !rem.Currency().Equals(EUR) {
 		t.Errorf("expected currency to be EUR, got %v", rem.Currency())
 	}
 	if len(ms) != 3 {
@@ -144,15 +137,15 @@ func TestAmount_Arithmetic(t *testing.T) {
 		if ms[i].Amount() != 3 {
 			t.Errorf("expected %v. party allocation value to be 3, got %v", i, ms[i].Amount())
 		}
-		if !ms[i].Currency().Equals(&EUR) {
+		if !ms[i].Currency().Equals(EUR) {
 			t.Errorf("expected %v. party allocation currency to be EUR, got %v", i, ms[i].Currency())
 		}
 	}
 }
 
 func TestAmount_CurrencyMismatch(t *testing.T) {
-	eur := mustAmount(t, 10, EUR)
-	usd := mustAmount(t, 10, USD)
+	eur := NewAmount(10, EUR)
+	usd := NewAmount(10, USD)
 
 	if _, err := eur.Add(usd); !errors.Is(err, ErrCurrencyMismatch) {
 		t.Errorf("Add: err = %v, want ErrCurrencyMismatch", err)
@@ -178,9 +171,9 @@ func TestAmount_CurrencyMismatch(t *testing.T) {
 }
 
 func TestAmount_Overflow(t *testing.T) {
-	max := mustAmount(t, math.MaxInt, EUR)
-	min := mustAmount(t, math.MinInt, EUR)
-	one := mustAmount(t, 1, EUR)
+	max := NewAmount(math.MaxInt, EUR)
+	min := NewAmount(math.MinInt, EUR)
+	one := NewAmount(1, EUR)
 
 	if _, err := max.Add(one); !errors.Is(err, ErrInvalidOperation) {
 		t.Errorf("Add overflow: err = %v, want ErrInvalidOperation", err)
@@ -200,7 +193,7 @@ func TestAmount_Overflow(t *testing.T) {
 }
 
 func TestAmount_SplitErrors(t *testing.T) {
-	a := mustAmount(t, 10, EUR)
+	a := NewAmount(10, EUR)
 	for _, n := range []int{0, -1} {
 		if _, _, err := a.Split(n); !errors.Is(err, ErrInvalidSplitNumber) {
 			t.Errorf("Split(%v): err = %v, want ErrInvalidSplitNumber", n, err)
@@ -209,7 +202,7 @@ func TestAmount_SplitErrors(t *testing.T) {
 }
 
 func TestAmount_SplitNegativeAmount(t *testing.T) {
-	a := mustAmount(t, -10, EUR)
+	a := NewAmount(-10, EUR)
 	ps, r, err := a.Split(3)
 	if err != nil {
 		t.Fatalf("unexpected error %v", err)
@@ -224,7 +217,7 @@ func TestAmount_SplitNegativeAmount(t *testing.T) {
 }
 
 func TestAmount_AllocErrors(t *testing.T) {
-	a := mustAmount(t, 10, EUR)
+	a := NewAmount(10, EUR)
 
 	if _, _, err := a.Alloc(); !errors.Is(err, ErrNoRatiosSpecified) {
 		t.Errorf("Alloc(): err = %v, want ErrNoRatiosSpecified", err)
@@ -238,7 +231,7 @@ func TestAmount_AllocErrors(t *testing.T) {
 }
 
 func TestAmount_AllocSumsToOriginal(t *testing.T) {
-	a := mustAmount(t, 1001, EUR)
+	a := NewAmount(1001, EUR)
 	ms, lo, err := a.Alloc(50, 30, 20)
 	if err != nil {
 		t.Fatalf("unexpected error %v", err)
@@ -289,7 +282,7 @@ func TestAmount_Round(t *testing.T) {
 		{1234, USD, Cash, 1234},
 		{1234, JPY, Cash, 1234},
 	} {
-		a := mustAmount(t, tc.value, tc.cur)
+		a := NewAmount(tc.value, tc.cur)
 		r, err := a.Round(tc.kind)
 		if err != nil {
 			t.Errorf("[%v] %v %v: unexpected error %v", i, tc.value, &tc.cur, err)
@@ -298,16 +291,16 @@ func TestAmount_Round(t *testing.T) {
 		if r.Amount() != tc.want {
 			t.Errorf("[%v] %v %v: got %v, want %v", i, tc.value, &tc.cur, r.Amount(), tc.want)
 		}
-		if !r.Currency().Equals(&tc.cur) {
+		if !r.Currency().Equals(tc.cur) {
 			t.Errorf("[%v]: currency changed to %v", i, r.Currency())
 		}
 	}
 }
 
 func TestAmount_Comparisons(t *testing.T) {
-	small := mustAmount(t, 5, EUR)
-	big := mustAmount(t, 10, EUR)
-	alsoBig := mustAmount(t, 10, EUR)
+	small := NewAmount(5, EUR)
+	big := NewAmount(10, EUR)
+	alsoBig := NewAmount(10, EUR)
 
 	for i, tc := range []struct {
 		a, b    *Amount
@@ -349,9 +342,9 @@ func TestAmount_Comparisons(t *testing.T) {
 }
 
 func TestAmount_Predicates(t *testing.T) {
-	pos := mustAmount(t, 1, EUR)
-	zero := mustAmount(t, 0, EUR)
-	negV := mustAmount(t, -1, EUR)
+	pos := NewAmount(1, EUR)
+	zero := NewAmount(0, EUR)
+	negV := NewAmount(-1, EUR)
 
 	if !pos.IsPositive() || pos.IsZero() || pos.IsNegative() {
 		t.Error("1 should be positive only")
@@ -365,7 +358,7 @@ func TestAmount_Predicates(t *testing.T) {
 }
 
 func TestAmount_AbsNeg(t *testing.T) {
-	a := mustAmount(t, -5, EUR)
+	a := NewAmount(-5, EUR)
 
 	abs, err := a.Abs()
 	if err != nil {
@@ -410,8 +403,14 @@ func TestAmount_String(t *testing.T) {
 		{1234, JPY, "JPY 1234"},
 		{-1234, JPY, "JPY -1234"},
 		{100, USD, "USD 1.00"},
+
+		// integer bounds; MinInt in a scale-0 currency must not
+		// produce a double sign (regression)
+		{math.MinInt, JPY, "JPY " + strconv.Itoa(math.MinInt)},
+		{math.MaxInt, JPY, "JPY " + strconv.Itoa(math.MaxInt)},
+		{math.MinInt, EUR, fmt.Sprintf("EUR %d.%02d", math.MinInt/100, -(math.MinInt % 100))},
 	} {
-		a := mustAmount(t, tc.value, tc.cur)
+		a := NewAmount(tc.value, tc.cur)
 		if got := a.String(); got != tc.want {
 			t.Errorf("[%v]: String() = %q, want %q", i, got, tc.want)
 		}
@@ -419,7 +418,7 @@ func TestAmount_String(t *testing.T) {
 }
 
 func TestAmount_JSON(t *testing.T) {
-	a := mustAmount(t, 1234, EUR)
+	a := NewAmount(1234, EUR)
 
 	b, err := json.Marshal(a)
 	if err != nil {

@@ -347,6 +347,10 @@ func TestCalc_power(t *testing.T) {
 		{-2, 3, -8, true},
 		{-2, 4, 16, true},
 
+		// the largest representable power of two: the final squaring of
+		// the base must not be reported as overflow (regression)
+		{2, intSize - 2, 1 << (intSize - 2), true},
+
 		// negative exponent
 		{-1, -1, 0, false},
 		{0, -1, 0, false},

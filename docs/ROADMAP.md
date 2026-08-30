@@ -90,8 +90,10 @@ fmt-check`; regenerate tables with `make gen-fetch` (fetches CLDR
 
 ### Module and layout
 
-- Go directive raised from 1.18 to 1.26; `golang.org/x/text` upgraded from
-  v0.3.7 to v0.41.0.
+- Go directive raised from 1.18 to 1.25.0 — the actual floor imposed by
+  `golang.org/x/text` v0.41.0 (upgraded from v0.3.7); nothing in the
+  library itself needs a newer toolchain, so consumers one Go release
+  behind are not cut off.
 - Library moved from `pkg/` to the module root, so
   `go get github.com/paulwerner/currency` imports the package directly, as
   the README quick start always claimed. The old import path
@@ -148,3 +150,19 @@ fmt-check`; regenerate tables with `make gen-fetch` (fetches CLDR
 - Package documentation in `doc.go`; contributor/agent guide in
   `AGENTS.md`, referenced by `CLAUDE.md`; README rewritten to match the
   actual API; this roadmap document.
+
+### Review follow-ups
+
+Addressed from the first review round on the modernization PR:
+
+- `pow()` no longer reports a false overflow caused by one redundant
+  final squaring of the base (e.g. `pow(2, 62)` on 64-bit).
+- `String()` no longer prints a double sign for `math.MinInt` in
+  scale-0 currencies.
+- `UnmarshalJSON` wraps out-of-range amounts (32-bit platforms) in
+  `ErrInvalidJSON` like every other decode failure.
+- `Currency` methods moved to value receivers and `Amount.Currency()`
+  returns a value, closing the interior-pointer hole that allowed
+  mutating an amount's currency in place.
+- `NewAmount` no longer returns an always-nil error.
+- Go directive lowered from 1.26 to the actual 1.25.0 floor (see above).

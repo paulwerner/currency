@@ -9,4 +9,4 @@ Quick reminders:
   run `make gen` instead of touching them.
 - Before pushing: `make build test vet fmt-check`.
 - Open feature work is tracked in [docs/ROADMAP.md](docs/ROADMAP.md);
-  keep it updated when completing or re-scoping items.
+  update it in the same PR that completes or re-scopes an item.

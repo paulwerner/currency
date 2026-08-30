@@ -38,5 +38,5 @@ A CI failure in the `Check formatting` step means `gofmt -w .`; in
   with `errors.Is`.
 - The CI test job runs with `-race`; a failure only under CI is likely a
   race — run `go test -race ./...` locally, not plain `go test`.
-- Update `docs/ROADMAP.md` (status table, change log) when a PR completes
-  or re-scopes a roadmap item.
+- Update `docs/ROADMAP.md` (status table, change log) in the same PR that
+  completes or re-scopes a roadmap item.

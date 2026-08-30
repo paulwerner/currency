@@ -29,11 +29,11 @@ type Amount struct {
 }
 
 // NewAmount returns an Amount of v minor units of the given currency
-func NewAmount(v int, cur Currency) (*Amount, error) {
+func NewAmount(v int, cur Currency) *Amount {
 	return &Amount{
 		value:    v,
 		currency: cur,
-	}, nil
+	}
 }
 
 // NewFromISO returns an Amount of v minor units of the currency identified
@@ -50,8 +50,8 @@ func NewFromISO(v int, iso string) (*Amount, error) {
 }
 
 // Currency reports the amount's currency
-func (a *Amount) Currency() *Currency {
-	return &a.currency
+func (a *Amount) Currency() Currency {
+	return a.currency
 }
 
 // Amount reports the amount's value in the currency's minor units
@@ -61,7 +61,7 @@ func (a *Amount) Amount() int {
 
 // SameCurrency reports whether both amounts are in the same currency
 func (a *Amount) SameCurrency(oa *Amount) bool {
-	return a.currency.Equals(&oa.currency)
+	return a.currency.Equals(oa.currency)
 }
 
 // Add returns the sum a + oa. It returns ErrCurrencyMismatch if the
@@ -199,8 +199,8 @@ func (a *Amount) Round(k Kind) (*Amount, error) {
 
 // roundingStep reports the kind's rounding increment in minor units
 func (a *Amount) roundingStep(k Kind) (int, bool) {
-	stdScale, _ := Standard.Rounding(&a.currency)
-	scale, inc := k.Rounding(&a.currency)
+	stdScale, _ := Standard.Rounding(a.currency)
+	scale, inc := k.Rounding(a.currency)
 	if scale > stdScale {
 		// rounding scales beyond the currency's minor unit cannot be
 		// represented by an integer amount of minor units
@@ -222,20 +222,23 @@ func (a *Amount) String() string {
 // formatValue renders the plain decimal value using the standard scale,
 // e.g. 1234 EUR -> "12.34", 1234 JPY -> "1234"
 func (a *Amount) formatValue() string {
-	scale, _ := Standard.Rounding(&a.currency)
+	scale, _ := Standard.Rounding(a.currency)
+	if scale == 0 {
+		// also avoids negating loBound below, which would overflow
+		return strconv.Itoa(a.value)
+	}
 	exp, ok := pow(10, scale)
 	if !ok {
 		return strconv.Itoa(a.value)
 	}
 
 	sign := ""
+	// exp >= 10 here, so |whole| and |frac| are far from the integer
+	// bounds and safe to negate
 	whole, frac := a.value/exp, a.value%exp
 	if a.value < 0 {
 		sign = "-"
 		whole, frac = -whole, -frac
-	}
-	if scale == 0 {
-		return sign + strconv.Itoa(whole)
 	}
 	return fmt.Sprintf("%s%d.%0*d", sign, whole, scale, frac)
 }
@@ -271,7 +274,7 @@ func (a *Amount) UnmarshalJSON(b []byte) error {
 	}
 	v := int(*aj.Amount)
 	if int64(v) != *aj.Amount {
-		return ErrInvalidOperation
+		return fmt.Errorf("%w: amount out of range", ErrInvalidJSON)
 	}
 	cur, err := CurrencyFromISO(aj.Currency)
 	if err != nil {
@@ -287,7 +290,7 @@ func ptr[T any](v T) *T { return &v }
 // Equals reports whether both amounts have the same value and currency
 func (a *Amount) Equals(oa *Amount) bool {
 	return a.value == oa.value &&
-		a.currency.Equals(&oa.currency)
+		a.currency.Equals(oa.currency)
 }
 
 // Cmp compares a and oa and returns -1 if a is less than oa, 0 if they are
@@ -387,7 +390,7 @@ func (a *Amount) Neg() (*Amount, error) {
 //
 
 func (a *Amount) assertSameCurrency(oa *Amount) error {
-	if !a.currency.Equals(&oa.currency) {
+	if !a.currency.Equals(oa.currency) {
 		return ErrCurrencyMismatch
 	}
 	return nil

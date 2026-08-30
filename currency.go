@@ -41,7 +41,7 @@ var (
 // Rounding reports the rounding characteristics for the given currency, where
 // scale is the number of fractional decimals and increment is the number of
 // units in terms of 10^(-scale) to which to round to
-func (k Kind) Rounding(cur *Currency) (scale, increment int) {
+func (k Kind) Rounding(cur Currency) (scale, increment int) {
 	info := currency.Elem(int(cur.index))[3]
 	switch k.rounding {
 	case standard:
@@ -59,12 +59,12 @@ type Currency struct {
 
 // Code reports the currency's ISO code
 // See: Currency.String()
-func (c *Currency) Code() string {
+func (c Currency) Code() string {
 	return c.String()
 }
 
 // String returns the currency's ISO code
-func (c *Currency) String() string {
+func (c Currency) String() string {
 	if c.index == 0 {
 		return "XXX"
 	}
@@ -73,7 +73,7 @@ func (c *Currency) String() string {
 
 // Equals returns true, if both currencies have the same index,
 // false otherwise
-func (c *Currency) Equals(oc *Currency) bool {
+func (c Currency) Equals(oc Currency) bool {
 	return c.index == oc.index
 }
 

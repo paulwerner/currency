@@ -13,7 +13,7 @@
 //
 // A minimal example:
 //
-//	price, _ := currency.NewAmount(1999, currency.EUR) // 19.99 EUR
+//	price := currency.NewAmount(1999, currency.EUR) // 19.99 EUR
 //	total, _ := price.Mul(3)
 //	parts, rest, _ := total.Alloc(50, 30, 20)
 //	fmt.Println(total, parts, rest)

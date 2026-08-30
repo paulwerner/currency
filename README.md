@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	price, _ := currency.NewAmount(1999, currency.EUR) // 19.99 EUR
+	price := currency.NewAmount(1999, currency.EUR) // 19.99 EUR
 	total, _ := price.Mul(3)
 
 	// distribute 59.97 EUR by ratios 50/30/20, nothing gets lost
@@ -32,7 +32,7 @@ func main() {
 	fmt.Println(total, parts[0], rest) // EUR 59.97 EUR 29.98 EUR 0.01
 
 	// cash rounding: 0.05 CHF increments
-	cash, _ := currency.NewAmount(1002, currency.CHF)
+	cash := currency.NewAmount(1002, currency.CHF)
 	rounded, _ := cash.Round(currency.Cash)
 	fmt.Println(rounded) // CHF 10.00
 

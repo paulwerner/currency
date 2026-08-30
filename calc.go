@@ -123,6 +123,11 @@ func pow(x, e int) (int, bool) {
 			p = r
 		}
 		e >>= 1
+		if e == 0 {
+			// p is complete; squaring x once more could report a
+			// false overflow for a representable result
+			break
+		}
 		r, ok := mul(x, x)
 		if !ok {
 			return 0, false
