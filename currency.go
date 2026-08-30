@@ -6,10 +6,10 @@ import (
 	"github.com/paulwerner/currency/internal/data"
 )
 
-// Kind determines the rounding and rendering properties of the currency value
+// Kind determines the rounding and rendering properties of a currency value
 type Kind struct {
 	rounding rounding
-	// TODO: formatting: (standard|accounting)
+	format   formatStyle
 }
 
 type rounding byte
@@ -19,14 +19,23 @@ const (
 	cash
 )
 
-var (
-	// Standard defines rounding and formatting standards for currencies
-	Standard Kind = Kind{rounding: standard}
-	// Cash defines rounding and formatting standards for cash transactions
-	Cash Kind = Kind{rounding: cash}
+// formatStyle selects the CLDR currency format pattern used for rendering
+type formatStyle byte
 
-	// Accounting defines rounding and formatting standards for accounting
-	Accounting Kind = Kind{rounding: standard}
+const (
+	formatStandard formatStyle = iota
+	formatAccounting
+)
+
+var (
+	// Standard defines standard rounding and formatting for currencies
+	Standard Kind = Kind{rounding: standard, format: formatStandard}
+	// Cash defines rounding and formatting for cash transactions, which
+	// for some currencies rounds to coarser increments (e.g. 0.05 CHF)
+	Cash Kind = Kind{rounding: cash, format: formatStandard}
+	// Accounting defines rounding and formatting for accounting, which
+	// typically renders negative amounts in parentheses
+	Accounting Kind = Kind{rounding: standard, format: formatAccounting}
 )
 
 // Rounding reports the rounding characteristics for the given currency, where
@@ -64,17 +73,18 @@ func (c *Currency) String() string {
 
 // Equals returns true, if both currencies have the same index,
 // false otherwise
-func (s *Currency) Equals(os *Currency) (ok bool) {
-	return s.index == os.index
+func (c *Currency) Equals(oc *Currency) bool {
+	return c.index == oc.index
 }
 
 var (
-	ErrISOCodeMalformed = errors.New("currency: iso code is not well-formed")
-	ErrISOCodeNotRecognized  = errors.New("currency: iso code is not a recognized currency")
+	ErrISOCodeMalformed     = errors.New("currency: iso code is not well-formed")
+	ErrISOCodeNotRecognized = errors.New("currency: iso code is not a recognized currency")
 )
 
-// CurrencyFromISO parses a 3-letter ISO 4217 currencyData. It returns an error if s
-// is not well-formed or not a not supported currency code
+// CurrencyFromISO parses a 3-letter ISO 4217 currency code. It returns an
+// error if s is not well-formed or not a supported currency code.
+// The code "XXX" (no currency) is valid and returns the canonical XXX value
 func CurrencyFromISO(s string) (*Currency, error) {
 	var buf [4]byte // Take one byte more to detect oversized keys
 	key := buf[:copy(buf[:], s)]
@@ -83,14 +93,16 @@ func CurrencyFromISO(s string) (*Currency, error) {
 	}
 	if i := currency.Index(key); i >= 0 {
 		if i == xxx {
-			return nil, nil
+			// normalize to the canonical zero-value representation, so
+			// that the result equals the exported XXX variable
+			return &Currency{}, nil
 		}
 		return &Currency{uint16(i)}, nil
 	}
 	return nil, ErrISOCodeNotRecognized
 }
 
-// MustCurrencyFromISO is like ParseISO, but panics if the given unit
+// MustCurrencyFromISO is like CurrencyFromISO, but panics if the given code
 // cannot be parsed. It simplifies safe initialization of Currency values
 func MustCurrencyFromISO(s string) *Currency {
 	c, err := CurrencyFromISO(s)
