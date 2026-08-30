@@ -1,5 +1,7 @@
 # Currency
 
+[![CI](https://github.com/paulwerner/currency/actions/workflows/ci.yml/badge.svg)](https://github.com/paulwerner/currency/actions/workflows/ci.yml)
+
 Currency is a library for handling monetary values in Go (Golang).
 Amounts are integer values in a currency's minor units (cents, yen, …)
 with overflow-checked arithmetic, and the currency metadata — ISO 4217

@@ -38,6 +38,13 @@ make cover      # coverage summary
 CI (`.github/workflows/ci.yml`) runs fmt-check, vet, build, race tests, and
 a `go mod tidy` cleanliness check. Run all of these locally before pushing.
 
+Green CI is the merge standard for this repository: every pull request must
+pass the `test` check on its current head before it is merged, and a red
+check is always worked immediately — fixed, or root-caused and explained on
+the PR — never waited out. Repository admins should mirror this in GitHub
+branch protection for `main` (Settings → Branches → require the `test`
+status check).
+
 ## Code generation
 
 `tables.go` and `common.go` are generated from Unicode CLDR data:
