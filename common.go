@@ -26,6 +26,45 @@ var roundings = [...]roundingType{
 	{2, 50},
 }
 
+// localePattern is a CLDR currency format pattern, parsed at generation
+// time into the literal affixes surrounding the formatted number. Affixes
+// contain "¤" as the placeholder for the currency symbol and "-" as
+// the placeholder for the locale's minus sign; everything else is literal
+// text. primGroup and secGroup are the sizes of the rightmost and the
+// subsequent integer digit groups ("#,##0.00" is 3/3, "#,##,##0.00" is
+// 3/2); both are 0 when the pattern does not group digits.
+type localePattern struct {
+	posPrefix, posSuffix string
+	negPrefix, negSuffix string
+	primGroup, secGroup  uint8
+}
+
+// currencySymbol maps a 3-letter ISO 4217 code to the symbol a locale
+// displays it with, e.g. "USD" -> "$".
+type currencySymbol struct {
+	code, symbol string
+}
+
+// localeData holds the latn number-formatting data of one locale as a
+// sparse overlay over its parent locale: a zero-valued field ("" or 0)
+// means the value is inherited from the parent chain. parent is the index
+// of the parent locale in the locales table; the root locale is stored at
+// index 0 and is its own parent. standard and accounting are 1-based
+// indices into localePatterns (0 = inherited). symbols lists only the
+// currency symbols this locale overrides, sorted by currency code.
+type localeData struct {
+	name    string // canonical BCP 47 tag, e.g. "de-CH"
+	parent  uint16
+	decimal string // decimal separator
+	group   string // integer digit group separator
+	minus   string // minus sign
+
+	standard   uint16
+	accounting uint16
+
+	symbols []currencySymbol
+}
+
 func toDate(t time.Time) uint32 {
 	y := t.Year()
 	if y == 1 {

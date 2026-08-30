@@ -14,48 +14,18 @@ brought the repository to its current state.
 | Currency data generation | ✅ done |
 | De-/serialization (JSON) | ✅ done |
 | Documentation (package docs, AGENTS.md, README) | ✅ done |
-| Locale data generation | ⏳ open |
+| Locale data generation | ✅ done |
 | Locale-based formatting | ⏳ open |
 | Kind-based displaying (standard, cash, accounting) | ⏳ partially prepared |
 
 ## Open items
 
-### 1. Locale data generation
+### 1. Locale-based formatting
 
-Extend the generator (`internal/cldrgen`) to emit locale tables alongside the
-existing currency table: per-locale number symbols (decimal separator, group
-separator, minus sign), the CLDR `standard` and `accounting` currency format
-patterns, and per-locale currency symbols (e.g. `$`, `€`, `US$`, `CHF`).
-
-Implementation notes from the groundwork investigation:
-
-- The data lives in the CLDR `common/main/<locale>.xml` files under the
-  `numbers` section (`symbols`, `currencyFormats`, `currencies`), which the
-  already-used `golang.org/x/text/unicode/cldr` decoder parses when the
-  section filter includes `numbers` (it already does).
-- The generator should carry an explicit locale allowlist so output is
-  deterministic regardless of how many locale files the `core.zip` contains.
-- Restrict extraction to the `latn` numbering system for a first iteration.
-- CLDR data is inherited along a locale's parent chain (`de-CH` → `de` →
-  `root`, with exceptions such as `zh-Hant` → `root` listed in
-  `supplementalData.xml` under `parentLocales`). Resolve at generation time
-  and store per-locale diffs against the parent to keep tables small; store
-  the parent per locale so the runtime walks the same chain.
-- Parse the format patterns at generation time into positive/negative
-  prefix/suffix affixes plus grouping sizes (`#,##0.00` → 3/3,
-  `#,##,##0.00` → 3/2), leaving only the `¤` symbol placeholder for runtime
-  substitution. Select `currencyFormatLength` elements without a `type`
-  attribute (the `short` variants are compact notation and out of scope).
-- Note for sandboxed environments: `unicode.org` may not be reachable. The
-  same files can be fetched per-file from the GitHub mirror, e.g.
-  `https://raw.githubusercontent.com/unicode-org/cldr/release-40/common/main/de.xml`,
-  and zipped locally as `common/...` — the generator only needs
-  `common/supplemental/supplementalData.xml` plus the allowlisted
-  `common/main/*.xml` files.
-
-### 2. Locale-based formatting
-
-Add a runtime formatter on top of the generated locale tables:
+The generated locale tables are in place (see the change log): `locales`
+and `localePatterns` in `tables.go`, with their types (`localeData`,
+`localePattern`, `currencySymbol`) documented in `common.go`. Add a runtime
+formatter on top of them:
 
 - `Amount.Display(locale string) string` — format using the locale's
   standard pattern, e.g. `19,99 €` for `de` and `€19.99` for `en`.
@@ -68,7 +38,7 @@ Add a runtime formatter on top of the generated locale tables:
 - Out of scope initially: non-`latn` digit systems, per-currency pattern
   overrides, bidi isolation for RTL locales; document these limitations.
 
-### 3. Kind-based displaying
+### 2. Kind-based displaying
 
 The groundwork is already merged: `Kind` now carries a `format` style, so
 `Accounting` is a distinct value from `Standard`, and `Cash` rounding
@@ -83,10 +53,46 @@ Remaining work, once locale formatting exists:
 
 ## Build and change log
 
-All changes below were made on the `claude/currency-repo-review-roadmap-d5k701`
-branch during the 2026-08 review pass. Build/verify with `make build test vet
-fmt-check`; regenerate tables with `make gen-fetch` (fetches CLDR
-`core.zip`, then runs `go generate`).
+Build/verify with `make build test vet fmt-check`; regenerate tables with
+`make gen-fetch` (fetches CLDR `core.zip`, then runs `go generate`).
+
+### Locale data generation (`claude/roadmap-item-pr-eiypo2`, 2026-08)
+
+- The generator gained `internal/cldrgen/gen_locales.go`, which emits two
+  new tables into `tables.go`: `localePatterns` (currency format patterns
+  parsed into affixes plus grouping sizes, deduplicated) and `locales`
+  (per-locale number symbols, pattern references, and currency symbols).
+  The shared types (`localeData`, `localePattern`, `currencySymbol`) live
+  in `gen_common.go` and are copied into `common.go`.
+- Locale coverage is an explicit 33-entry allowlist (root plus major
+  locales for the currencies exposed as package constants), restricted to
+  the `latn` numbering system and the default-length `standard` and
+  `accounting` patterns; compact ("short") notation and non-latn digit
+  systems remain out of scope.
+- Inheritance is resolved at generation time along the CLDR parent chain,
+  honoring the `parentLocales` exceptions in `supplementalData.xml`
+  (`zh-Hant` → `root`, `nb` → `no`) that the x/text decoder ignores.
+  Locales that only appear on parent chains (`en-001`, `es-419`, `no`) are
+  flattened into diffs against the nearest emitted ancestor. Each emitted
+  locale stores only its diffs plus its parent index, so the runtime
+  formatter can walk the same chain; the root locale sits at index 0 and
+  defines every field.
+- CLDR's `↑↑↑` "same as parent" markers are treated as absent, `alt`
+  variants (narrow/variant symbols) are skipped, and currency symbols are
+  limited to the currencies exposed as package constants. Quirks in the
+  pinned CLDR 40 data (e.g. Russian's draft `XXXX` symbol for `XXX`) are
+  reproduced faithfully rather than patched by hand.
+- The currency table portion of `tables.go` is byte-for-byte unchanged.
+- New tests in `tables_test.go` cover table invariants (root completeness,
+  sorted names, parent chains terminating at root, one `¤` placeholder per
+  sign) and resolved spot checks against known CLDR 40 values (de-CH
+  separators and `¤-` negative pattern, en-IN 3/2 grouping, sv/nb U+2212
+  minus, en-001 flattening, symbol resets such as de-CH showing EUR as
+  `EUR`).
+
+### Modernization pass (`claude/currency-repo-review-roadmap-d5k701`, 2026-08)
+
+All changes below were made during the 2026-08 review pass.
 
 ### Module and layout
 

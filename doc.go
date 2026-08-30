@@ -8,8 +8,10 @@
 // around.
 //
 // Currency metadata (ISO 4217 codes, rounding scales and cash rounding
-// increments) is generated from the Unicode CLDR project; see
-// internal/cldrgen and the Makefile for how to regenerate the tables.
+// increments) and per-locale formatting data (number symbols, currency
+// format patterns, currency symbols) are generated from the Unicode CLDR
+// project; see internal/cldrgen and the Makefile for how to regenerate
+// the tables.
 //
 // A minimal example:
 //

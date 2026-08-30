@@ -19,7 +19,7 @@ notes before starting work on them.
 | `calc.go` | Overflow-checked integer primitives (`add`, `mul`, `round`, ...) |
 | `currency.go` | `Currency`, `Kind` (Standard/Cash/Accounting), ISO parsing |
 | `common.go` | **Generated** from `internal/cldrgen/gen_common.go` — do not edit |
-| `tables.go` | **Generated** CLDR currency table — do not edit |
+| `tables.go` | **Generated** CLDR currency and locale tables — do not edit |
 | `doc.go` | Package docs and the `go:generate` directive |
 | `internal/data/` | Compact string-table container used by the generated tables |
 | `internal/gen/` | Go-code writer used by the generator |
@@ -60,7 +60,11 @@ make gen         # runs go generate against an existing ./core.zip
 - If `unicode.org` is unreachable (some sandboxes block it), fetch the
   needed files from `https://raw.githubusercontent.com/unicode-org/cldr/release-<N>/common/...`
   and zip them locally with the same `common/main/*.xml` and
-  `common/supplemental/supplementalData.xml` layout.
+  `common/supplemental/supplementalData.xml` layout. A partial zip needs
+  `supplementalData.xml` plus every locale in the allowlist in
+  `internal/cldrgen/gen_locales.go` and the locales on their parent
+  chains (`root`, `en_001`, `es_419`, `no`); the generator fails with the
+  name of any file that is missing.
 - After regenerating, `git diff tables.go common.go` should be empty unless
   you changed the CLDR version or the generator on purpose.
 
