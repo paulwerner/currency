@@ -1,6 +1,7 @@
 package currency
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -92,10 +93,94 @@ func TestCurrency_CurrencyFromISO(t *testing.T) {
 	// not supported currency
 	iso := "BTC"
 	cur, err := CurrencyFromISO(iso)
-	if err == nil {
-		t.Errorf("[%v]: expected error not to be nil, got %v", iso, err)
+	if !errors.Is(err, ErrISOCodeNotRecognized) {
+		t.Errorf("[%v]: expected ErrISOCodeNotRecognized, got %v", iso, err)
 	}
 	if cur != nil {
 		t.Errorf("[%v]: expected currency to be  nil, got %v", iso, err)
+	}
+}
+
+func TestCurrency_CurrencyFromISO_CaseInsensitive(t *testing.T) {
+	cur, err := CurrencyFromISO("eur")
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
+	}
+	if !cur.Equals(&EUR) {
+		t.Errorf("expected EUR, got %v", cur)
+	}
+}
+
+func TestCurrency_CurrencyFromISO_XXX(t *testing.T) {
+	cur, err := CurrencyFromISO("XXX")
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
+	}
+	if cur == nil {
+		t.Fatal("expected non-nil currency for XXX")
+	}
+	if !cur.Equals(&XXX) {
+		t.Errorf("expected canonical XXX, got index %v", cur)
+	}
+	if cur.Code() != "XXX" {
+		t.Errorf("expected code XXX, got %v", cur.Code())
+	}
+}
+
+func TestCurrency_CurrencyFromISO_Malformed(t *testing.T) {
+	for _, iso := range []string{"", "E", "EU", "EURO", "E1R", "E~R", "EUR "} {
+		cur, err := CurrencyFromISO(iso)
+		if !errors.Is(err, ErrISOCodeMalformed) {
+			t.Errorf("[%q]: expected ErrISOCodeMalformed, got %v", iso, err)
+		}
+		if cur != nil {
+			t.Errorf("[%q]: expected nil currency, got %v", iso, cur)
+		}
+	}
+}
+
+func TestCurrency_MustCurrencyFromISO(t *testing.T) {
+	if cur := MustCurrencyFromISO("EUR"); !cur.Equals(&EUR) {
+		t.Errorf("expected EUR, got %v", cur)
+	}
+
+	defer func() {
+		if recover() == nil {
+			t.Error("expected panic for invalid code")
+		}
+	}()
+	MustCurrencyFromISO("NOPE")
+}
+
+func TestCurrency_String(t *testing.T) {
+	if got := XXX.String(); got != "XXX" {
+		t.Errorf("XXX.String() = %q, want XXX", got)
+	}
+	if got := EUR.String(); got != "EUR" {
+		t.Errorf("EUR.String() = %q, want EUR", got)
+	}
+}
+
+func TestKind_CashRounding(t *testing.T) {
+	for i, tc := range []struct {
+		cur           *Currency
+		wantScale     int
+		wantIncrement int
+	}{
+		{&CHF, 2, 5},  // rounds to 0.05
+		{&DKK, 2, 50}, // rounds to 0.50
+		{&CAD, 2, 5},
+		{&SEK, 0, 1}, // rounds to whole kronor
+		{&TWD, 0, 1},
+		{&USD, 2, 1}, // no special cash rounding
+		{&JPY, 0, 1},
+	} {
+		s, incr := Cash.Rounding(tc.cur)
+		if s != tc.wantScale {
+			t.Errorf("[%v]:[%s] want scale %v, got %v", i, tc.cur, tc.wantScale, s)
+		}
+		if incr != tc.wantIncrement {
+			t.Errorf("[%v]:[%s] want increment %v, got %v", i, tc.cur, tc.wantIncrement, incr)
+		}
 	}
 }
