@@ -15,36 +15,20 @@ brought the repository to its current state.
 | De-/serialization (JSON) | ✅ done |
 | Documentation (package docs, AGENTS.md, README) | ✅ done |
 | Locale data generation | ✅ done |
-| Locale-based formatting | ⏳ open |
+| Locale-based formatting | ✅ done |
 | Kind-based displaying (standard, cash, accounting) | ⏳ partially prepared |
 
 ## Open items
 
-### 1. Locale-based formatting
+### 1. Kind-based displaying
 
-The generated locale tables are in place (see the change log): `locales`
-and `localePatterns` in `tables.go`, with their types (`localeData`,
-`localePattern`, `currencySymbol`) documented in `common.go`. Add a runtime
-formatter on top of them:
+The groundwork is merged: `Kind` carries a `format` style, so `Accounting`
+is a distinct value from `Standard`, `Cash` rounding (e.g. 0.05 CHF,
+0.50 DKK) works via `Amount.Round(Cash)`, and the locale formatter's
+internal `display` method (see the change log) already takes the
+`formatStyle` selecting between the standard and accounting patterns.
 
-- `Amount.Display(locale string) string` — format using the locale's
-  standard pattern, e.g. `19,99 €` for `de` and `€19.99` for `en`.
-- Locale lookup: normalize the tag (`de_CH`/`de-CH`), exact match first,
-  then truncate subtags, then fall back to `root`.
-- Symbol lookup walks the stored parent chain and falls back to the ISO
-  code when no symbol is defined.
-- Apply the CLDR currency-spacing rule in simplified form: insert a
-  non-breaking space when a letter-final symbol abuts a digit (`CHF 12.34`).
-- Out of scope initially: non-`latn` digit systems, per-currency pattern
-  overrides, bidi isolation for RTL locales; document these limitations.
-
-### 2. Kind-based displaying
-
-The groundwork is already merged: `Kind` now carries a `format` style, so
-`Accounting` is a distinct value from `Standard`, and `Cash` rounding
-(e.g. 0.05 CHF, 0.50 DKK) works via `Amount.Round(Cash)`.
-
-Remaining work, once locale formatting exists:
+Remaining work:
 
 - `Amount.DisplayKind(locale string, k Kind) string` — `Cash` applies cash
   rounding and the cash scale before rendering; `Accounting` uses the
@@ -55,6 +39,38 @@ Remaining work, once locale formatting exists:
 
 Build/verify with `make build test vet fmt-check`; regenerate tables with
 `make gen-fetch` (fetches CLDR `core.zip`, then runs `go generate`).
+
+### Locale-based formatting (`claude/roadmap-item-pr-locals-74ruxf`, 2026-08)
+
+- `Amount.Display(locale string) string` in the new `display.go` renders
+  an amount with the locale's standard CLDR currency pattern, separators,
+  and symbols: `19,99 €` for `de`, `€19.99` for `en`, `EUR 1’234.56` for
+  `de-CH`, `$12,34,567.89` (3/2 grouping) for `en-IN`.
+- Locale lookup canonicalizes the tag (case folding, `_` vs `-`, script
+  subtags title-cased), tries an exact match via binary search over the
+  sorted table, truncates subtags (`zh-Hant-TW` → `zh-Hant`, `en-US` →
+  `en`), and falls back to `root` — so unknown locales still render.
+- Field resolution flattens the stored parent chain at call time
+  (`flattenLocale`); currency symbols are resolved along the same chain
+  (`localeSymbol`) and fall back to the ISO code (`CHF 12.34` in `en`).
+- The CLDR currency-spacing rule is applied in simplified form: a
+  no-break space is inserted where a letter of the substituted symbol
+  would abut a digit; nothing is inserted across an intervening minus
+  sign (`EUR-12.34` in `de-CH`). The sign is carried entirely by the
+  pattern affixes, whose `-` placeholder becomes the locale's minus sign
+  (U+2212 in `sv`/`fi`/`nb`), so `math.MinInt` in a scale-0 currency
+  formats without overflow.
+- The internal `display` method takes the `formatStyle`, so kind-based
+  displaying (open item 1) only needs to select `formatAccounting` and
+  apply cash rounding on top.
+- Documented limitations (Display doc comment): `latn` numbering system
+  only, no per-currency pattern overrides, CLDR's minimum-grouping-digits
+  rule is not applied, and no bidi isolation marks are emitted for RTL
+  locales.
+- Tests: rendering across locales and currencies (grouping variants,
+  symbol fallback and resets, RTL data, `XXX` placeholder), tag
+  normalization and fallback chains, `MinInt`/`MaxInt` bounds on 32- and
+  64-bit platforms, and unit tests for the digit-grouping helper.
 
 ### Locale data generation (`claude/roadmap-item-pr-eiypo2`, 2026-08)
 

@@ -36,6 +36,10 @@ func main() {
 	rounded, _ := cash.Round(currency.Cash)
 	fmt.Println(rounded) // CHF 10.00
 
+	// locale-based formatting
+	fmt.Println(price.Display("de")) // 19,99 €
+	fmt.Println(price.Display("en")) // €19.99
+
 	// parsing and (de-)serialization
 	a, _ := currency.NewFromISO(500, "DKK")
 	b, _ := a.MarshalJSON()
@@ -54,13 +58,16 @@ func main() {
   `Accounting`
 - support for 300+ currencies, data generated from the CLDR project
 - JSON de-/serialization
-- locale-based formatting is planned — see the [roadmap](docs/ROADMAP.md)
+- locale-based formatting from CLDR data: `Display("de-CH")` → `EUR 1’234.56`,
+  with BCP 47 tag normalization and parent-chain fallback
+- kind-based displaying (accounting parentheses, cash scales) is
+  planned — see the [roadmap](docs/ROADMAP.md)
 
 ## Development
 
 See [AGENTS.md](AGENTS.md) for layout, conventions, and how to build and
 test, and [docs/ROADMAP.md](docs/ROADMAP.md) for the remaining roadmap
-(locale-based formatting, kind-based displaying) and the change log.
+(kind-based displaying) and the change log.
 
 ```sh
 make build test vet fmt-check   # what CI runs
