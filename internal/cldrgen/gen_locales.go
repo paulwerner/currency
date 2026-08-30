@@ -87,11 +87,16 @@ func (b *builder) genLocales(w *gen.Writer, db *cldr.CLDR) {
 	}
 
 	resolved := map[string]*rawNumbers{}
+	resolving := map[string]bool{}
 	var resolve func(loc string) *rawNumbers
 	resolve = func(loc string) *rawNumbers {
 		if r, ok := resolved[loc]; ok {
 			return r
 		}
+		if resolving[loc] {
+			log.Fatalf("error parent chain of %q contains a cycle", loc)
+		}
+		resolving[loc] = true
 		r := &rawNumbers{symbols: map[string]string{}}
 		if loc != "root" {
 			p := resolve(parent(loc))
@@ -264,23 +269,34 @@ func extractNumbers(loc string, ldml *cldr.LDML) *rawNumbers {
 	if ldml.Numbers == nil {
 		return r
 	}
+	// setOnce rejects repeated non-alt elements for the same field, which
+	// would otherwise silently collapse to whichever comes last in file
+	// order (e.g. two draft variants after a CLDR version bump)
+	seen := map[string]bool{}
+	setOnce := func(field string, dst *string, v string) {
+		if seen[field] {
+			log.Fatalf("error %s: duplicate %s element", loc, field)
+		}
+		seen[field] = true
+		*dst = v
+	}
 	for _, s := range ldml.Numbers.Symbols {
 		if s.NumberSystem != "latn" {
 			continue
 		}
 		for _, e := range s.Decimal {
 			if e.Alt == "" {
-				r.decimal = value(loc, &e.Common)
+				setOnce("decimal", &r.decimal, value(loc, &e.Common))
 			}
 		}
 		for _, e := range s.Group {
 			if e.Alt == "" {
-				r.group = value(loc, &e.Common)
+				setOnce("group", &r.group, value(loc, &e.Common))
 			}
 		}
 		for _, e := range s.MinusSign {
 			if e.Alt == "" {
-				r.minus = value(loc, &e.Common)
+				setOnce("minusSign", &r.minus, value(loc, &e.Common))
 			}
 		}
 	}
@@ -296,29 +312,33 @@ func extractNumbers(loc string, ldml *cldr.LDML) *rawNumbers {
 				if f.Alias != nil {
 					continue // e.g. root aliases accounting to standard
 				}
-				var pat string
-				for _, p := range f.Pattern {
-					if p.Alt == "" {
-						pat = value(loc, &p.Common)
-					}
-				}
+				var dst *string
 				switch f.Type {
 				case "standard":
-					r.standard = pat
+					dst = &r.standard
 				case "accounting":
-					r.accounting = pat
+					dst = &r.accounting
+				default:
+					continue
+				}
+				for _, p := range f.Pattern {
+					if p.Alt == "" {
+						setOnce(f.Type+" pattern", dst, value(loc, &p.Common))
+					}
 				}
 			}
 		}
 	}
 	if ldml.Numbers.Currencies != nil {
 		for _, c := range ldml.Numbers.Currencies.Currency {
+			var sym string
 			for _, s := range c.Symbol {
 				if s.Alt == "" {
-					if sym := value(loc, s); sym != "" {
-						r.symbols[c.Type] = sym
-					}
+					setOnce("symbol for "+c.Type, &sym, value(loc, s))
 				}
+			}
+			if sym != "" {
+				r.symbols[c.Type] = sym
 			}
 		}
 	}
@@ -373,7 +393,7 @@ func splitPattern(s string) []string {
 
 // parseSubpattern splits one subpattern into the literal prefix and suffix
 // around the number section and derives the grouping sizes from it.
-// Quoting is resolved in the affixes (” is a literal apostrophe)
+// Quoting is resolved in the affixes (see unquote)
 func parseSubpattern(pat, sub string) (prefix, suffix string, prim, sec uint8) {
 	const numberChars = "#0,."
 	start, end := -1, -1
@@ -391,8 +411,11 @@ func parseSubpattern(pat, sub string) (prefix, suffix string, prim, sec uint8) {
 				start = i
 			}
 			end = i + 1
-		} else if r >= '1' && r <= '9' || r == 'E' || r == '@' {
-			log.Fatalf("error pattern %q: unsupported number section character %q", pat, r)
+		} else if r >= '1' && r <= '9' || strings.ContainsRune("E@*%‰", r) {
+			// explicit digits, significant digits, exponents, the padding
+			// escape, and percent/per-mille scaling are TR35 pattern
+			// syntax this parser does not implement
+			log.Fatalf("error pattern %q: unsupported pattern syntax character %q", pat, r)
 		}
 	}
 	if start < 0 {
@@ -432,21 +455,29 @@ func groupSizes(pat, number string) (prim, sec uint8) {
 }
 
 // unquote resolves pattern quoting in an affix: text between single quotes
-// is literal, and "”" is a literal apostrophe
+// is literal, and a doubled single quote is a literal apostrophe. A quoted
+// minus sign or currency sign is rejected: the stored affixes treat "-"
+// and "¤" as placeholders, so they cannot express "literal, do not
+// substitute" for those characters (no CLDR 40 pattern in the allowlist
+// quotes them)
 func unquote(pat, s string) string {
 	var b strings.Builder
 	inQuote := false
-	for i := 0; i < len(s); i++ {
-		if s[i] != '\'' {
-			b.WriteByte(s[i])
+	rs := []rune(s)
+	for i := 0; i < len(rs); i++ {
+		if rs[i] == '\'' {
+			if i+1 < len(rs) && rs[i+1] == '\'' {
+				b.WriteRune('\'')
+				i++
+				continue
+			}
+			inQuote = !inQuote
 			continue
 		}
-		if inQuote && i+1 < len(s) && s[i+1] == '\'' {
-			b.WriteByte('\'')
-			i++
-			continue
+		if inQuote && (rs[i] == '-' || string(rs[i]) == currencySymbolPlaceholder) {
+			log.Fatalf("error pattern %q: quoted %q in affix %q would lose its literal meaning", pat, string(rs[i]), s)
 		}
-		inQuote = !inQuote
+		b.WriteRune(rs[i])
 	}
 	if inQuote {
 		log.Fatalf("error pattern %q: unbalanced quote in affix %q", pat, s)
