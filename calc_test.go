@@ -271,17 +271,25 @@ func TestCalc_allocation(t *testing.T) {
 
 func TestCalc_negation(t *testing.T) {
 	for i, tc := range []struct {
-		x    int
-		want int
+		x      int
+		want   int
+		wantOk bool
 	}{
-		{1, -1},
-		{-1, -1},
-		{-2, -2},
-		{2, -2},
-		{math.MinInt, math.MinInt},
-		{math.MaxInt, math.MinInt + 1},
+		{0, 0, true},
+		{1, -1, true},
+		{-1, 1, true},
+		{-2, 2, true},
+		{2, -2, true},
+		{math.MaxInt, math.MinInt + 1, true},
+		{math.MinInt + 1, math.MaxInt, true},
+
+		// overflow
+		{math.MinInt, 0, false},
 	} {
-		z := neg(tc.x)
+		z, ok := neg(tc.x)
+		if ok != tc.wantOk {
+			t.Errorf("[%v]: want ok: %v, got: %v", i, tc.wantOk, ok)
+		}
 		if z != tc.want {
 			t.Errorf("[%v]: want z: %v, got: %v", i, tc.want, z)
 		}
@@ -339,6 +347,10 @@ func TestCalc_power(t *testing.T) {
 		{-2, 3, -8, true},
 		{-2, 4, 16, true},
 
+		// the largest representable power of two: the final squaring of
+		// the base must not be reported as overflow (regression)
+		{2, intSize - 2, 1 << (intSize - 2), true},
+
 		// negative exponent
 		{-1, -1, 0, false},
 		{0, -1, 0, false},
@@ -362,52 +374,70 @@ func TestCalc_power(t *testing.T) {
 func TestCalc_rounding(t *testing.T) {
 	for i, tc := range []struct {
 		x      int
-		s      int
+		step   int
 		want   int
 		wantOk bool
 	}{
-		// positive values
-		{110, 2, 100, true},
-		{111, 2, 100, true},
-		{111, 2, 100, true},
-		{301, 2, 300, true},
-		{401, 2, 400, true},
+		// step 1 is the identity
+		{0, 1, 0, true},
+		{1, 1, 1, true},
+		{-1, 1, -1, true},
+		{math.MaxInt, 1, math.MaxInt, true},
+		{math.MinInt, 1, math.MinInt, true},
 
-		// edge cases
-		{449, 2, 400, true},
-		{450, 2, 500, true},
-		{451, 2, 500, true},
-		{499, 2, 500, true},
-		{501, 2, 500, true},
+		// positive values, step 100
+		{110, 100, 100, true},
+		{111, 100, 100, true},
+		{301, 100, 300, true},
+		{401, 100, 400, true},
 
-		{111, 3, 0, true},
-		{1111, 3, 1000, true},
-		{1499, 3, 1000, true},
-		{1500, 3, 2000, true},
+		// ties round away from zero
+		{449, 100, 400, true},
+		{450, 100, 500, true},
+		{451, 100, 500, true},
+		{499, 100, 500, true},
+		{501, 100, 500, true},
+
+		{111, 1000, 0, true},
+		{1111, 1000, 1000, true},
+		{1499, 1000, 1000, true},
+		{1500, 1000, 2000, true},
 
 		// negative values
-		{-110, 2, -100, true},
-		{-111, 2, -100, true},
-		{-111, 2, -100, true},
-		{-301, 2, -300, true},
-		{-401, 2, -400, true},
+		{-110, 100, -100, true},
+		{-111, 100, -100, true},
+		{-301, 100, -300, true},
+		{-401, 100, -400, true},
 
-		// edge cases
-		{-449, 2, -400, true},
-		{-450, 2, -500, true},
-		{-451, 2, -500, true},
-		{-499, 2, -500, true},
-		{-501, 2, -500, true},
+		{-449, 100, -400, true},
+		{-450, 100, -500, true},
+		{-451, 100, -500, true},
+		{-499, 100, -500, true},
+		{-501, 100, -500, true},
 
-		{-111, 3, 0, true},
-		{-1111, 3, -1000, true},
-		{-1499, 3, -1000, true},
-		{-1500, 3, -2000, true},
+		{-111, 1000, 0, true},
+		{-1111, 1000, -1000, true},
+		{-1499, 1000, -1000, true},
+		{-1500, 1000, -2000, true},
 
-		// negative scale
+		// cash rounding increments (e.g. 0.05 CHF, 50 øre)
+		{102, 5, 100, true},
+		{103, 5, 105, true},
+		{-102, 5, -100, true},
+		{-103, 5, -105, true},
+		{1224, 50, 1200, true},
+		{1225, 50, 1250, true},
+
+		// invalid steps
+		{1, 0, 0, false},
 		{1, -2, 0, false},
+
+		// overflow: math.MaxInt ends in ...807, so with step 10 the
+		// remainder 7 rounds up past the representable maximum
+		{math.MaxInt, 10, 0, false},
+		{math.MinInt, 2, 0, false},
 	} {
-		z, ok := round(tc.x, tc.s, 1)
+		z, ok := round(tc.x, tc.step)
 		if ok != tc.wantOk {
 			t.Errorf("[%v]: want ok: %v, got: %v", i, tc.wantOk, ok)
 		}

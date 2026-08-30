@@ -8,7 +8,6 @@ import (
 	"hash"
 	"hash/fnv"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"reflect"
@@ -35,7 +34,7 @@ func WriteGoFile(filename, pkg string, b []byte) (n int) {
 // Repackage copies the given inFile to outFile adjusting the to the given package name.
 // It assumes that the given inFile is in package main, panics otherwise.
 func Repackage(inFile, outFile, pkg string) {
-	src, err := ioutil.ReadFile(inFile)
+	src, err := os.ReadFile(inFile)
 	if err != nil {
 		log.Fatalf("error reading %s: %v", inFile, err)
 	}
@@ -52,7 +51,7 @@ func Repackage(inFile, outFile, pkg string) {
 func WriteGo(w io.Writer, pkg, tags string, b []byte) (n int, err error) {
 	src := []byte(header)
 	if tags != "" {
-		src = append(src, fmt.Sprintf("// +build %s\n\n", tags)...)
+		src = append(src, fmt.Sprintf("//go:build %s\n\n", tags)...)
 	}
 	src = append(src, fmt.Sprintf("package %s\n\n", pkg)...)
 	src = append(src, b...)
@@ -322,7 +321,7 @@ func (w *Writer) writeSlice(x any, isArray bool) {
 				line := fmt.Sprintf("%#v,\n", x)
 				line = line[strings.IndexByte(line, '{'):]
 				w.printf("%d: ", i)
-				w.printf(line)
+				w.printf("%s", line)
 			}
 		}
 	case reflect.Array:

@@ -1,3 +1,6 @@
+// This file contains code common to the generator and the currency package
+// itself. It is copied to the repository root as common.go by the generator
+// (see gen.go), adjusting the package clause.
 package main
 
 import "time"

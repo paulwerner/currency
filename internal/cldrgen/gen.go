@@ -1,6 +1,7 @@
+// Command cldrgen generates tables.go and common.go in the repository root
+// from CLDR data (core.zip). Invoke it from the repository root via
+// "make gen" or "go generate" (see doc.go).
 package main
-
-//go:generate go run gen.go gen_common.go
 
 import (
 	"flag"
@@ -18,7 +19,7 @@ import (
 )
 
 var (
-	outputFile = flag.String("out", "pkg/tables.go",
+	outputFile = flag.String("out", "tables.go",
 		"the file to which the tables should be written")
 )
 
@@ -34,7 +35,7 @@ func main() {
 		log.Fatalf("DecodeZip: %v", err)
 	}
 
-	gen.Repackage("gen_common.go", "./pkg/common.go", "currency")
+	gen.Repackage("internal/cldrgen/gen_common.go", "common.go", "currency")
 	w := gen.NewWriter()
 	defer w.WriteGoFile(*outputFile, "currency")
 

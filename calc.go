@@ -89,11 +89,11 @@ func alloc(x int, r, s int) (int, bool) {
 	return z, true
 }
 
-func neg(x int) int {
-	if x > 0 {
-		return -x
+func neg(x int) (int, bool) {
+	if x == loBound {
+		return 0, false
 	}
-	return x
+	return -x, true
 }
 
 func abs(x int) (int, bool) {
@@ -123,6 +123,11 @@ func pow(x, e int) (int, bool) {
 			p = r
 		}
 		e >>= 1
+		if e == 0 {
+			// p is complete; squaring x once more could report a
+			// false overflow for a representable result
+			break
+		}
 		r, ok := mul(x, x)
 		if !ok {
 			return 0, false
@@ -132,45 +137,33 @@ func pow(x, e int) (int, bool) {
 	return p, true
 }
 
-func round(x int, s, i int) (int, bool) {
-	if x == 0 {
-		return 0, true
-	}
-	if s < 0 {
+// round rounds x to the nearest multiple of step, with ties rounded away
+// from zero (i.e. "half up" in terms of magnitude). step must be positive.
+func round(x int, step int) (int, bool) {
+	if step <= 0 {
 		return 0, false
+	}
+	if x == 0 || step == 1 {
+		return x, true
 	}
 	xabs, ok := abs(x)
 	if !ok {
 		return 0, false
 	}
 
-	exp, ok := pow(10, s)
-	if !ok {
-		return 0, false
-	}
-
-	m, ok := mod(xabs, exp)
-	if !ok {
-		return 0, false
-	}
-
-	if m >= (exp / 2) {
-		xabs, ok = add(xabs, exp)
+	m := xabs % step
+	// m >= step-m is equivalent to 2*m >= step without risking overflow
+	if m >= step-m {
+		xabs, ok = add(xabs, step-m)
 		if !ok {
 			return 0, false
 		}
-	}
-	q, ok := div(xabs, exp)
-	if !ok {
-		return 0, false
-	}
-	xabs, ok = mul(q, exp)
-	if !ok {
-		return 0, false
+	} else {
+		xabs -= m
 	}
 	if x < 0 {
+		// xabs > 0 here, so -xabs cannot underflow
 		return -xabs, true
-	} else {
-		return xabs, true
 	}
+	return xabs, true
 }
