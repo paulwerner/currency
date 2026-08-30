@@ -164,3 +164,65 @@ func TestGroupDigits(t *testing.T) {
 		}
 	}
 }
+
+func TestAmount_DisplayKind(t *testing.T) {
+	for _, tc := range []struct {
+		value  int
+		cur    Currency
+		locale string
+		kind   Kind
+		want   string
+	}{
+		// Standard renders exactly like Display
+		{1999, EUR, "de", Standard, "19,99 €"},
+		{-1999, EUR, "en", Standard, "-€19.99"},
+
+		// Accounting: parentheses for negatives where the locale says
+		// so; positive amounts render like the standard pattern
+		{1999, EUR, "en", Accounting, "€19.99"},
+		{-1999, EUR, "en", Accounting, "(€19.99)"},
+		{-1999, USD, "en", Accounting, "($19.99)"},
+		{-1234567, JPY, "ja", Accounting, "(￥1,234,567)"},
+		{-123456, EUR, "fr", Accounting, "(1 234,56 €)"},
+		{-123456, NOK, "nb", Accounting, "(kr 1 234,56)"},
+		// currency spacing applies inside the parentheses
+		{-1234, CHF, "en", Accounting, "(CHF 12.34)"},
+		// de has no separate accounting pattern
+		{-1999, EUR, "de", Accounting, "-19,99 €"},
+
+		// Cash: 0.05 CHF increments, ties away from zero
+		{1002, CHF, "en", Cash, "CHF 10.00"},
+		{1013, CHF, "de-CH", Cash, "CHF 10.15"},
+		{-1013, CHF, "de-CH", Cash, "CHF-10.15"},
+		{987, CAD, "fr-CA", Cash, "9,85 $"},
+		// 0.50 DKK increments
+		{1234, DKK, "da", Cash, "12,50 kr."},
+		{1212, DKK, "da", Cash, "12,00 kr."},
+		// SEK and NOK cash drops to scale 0 (whole kronor)
+		{1234, SEK, "sv", Cash, "12 kr"},
+		{-1250, SEK, "sv", Cash, "−13 kr"},
+		{1234567, NOK, "nb", Cash, "kr 12 346"},
+		// no special cash rounding: identical to Display
+		{1234, EUR, "de", Cash, "12,34 €"},
+		// rounding to zero selects the positive pattern
+		{2, CHF, "en", Cash, "CHF 0.00"},
+	} {
+		a := NewAmount(tc.value, tc.cur)
+		if got := a.DisplayKind(tc.locale, tc.kind); got != tc.want {
+			t.Errorf("[%v %v %v]: want %q, got %q", tc.locale, tc.cur, tc.value, tc.want, got)
+		}
+	}
+}
+
+// TestAmount_DisplayKind_RoundingOverflow pins the documented fallback:
+// when cash rounding overflows (MinInt cannot be rounded), the amount
+// renders unrounded at the standard scale — i.e. exactly like Display
+func TestAmount_DisplayKind_RoundingOverflow(t *testing.T) {
+	a := NewAmount(math.MinInt, SEK)
+	if _, err := a.Round(Cash); err == nil {
+		t.Fatal("expected cash rounding of MinInt to fail")
+	}
+	if got, want := a.DisplayKind("sv", Cash), a.Display("sv"); got != want {
+		t.Errorf("[MinInt SEK]: want %q, got %q", want, got)
+	}
+}

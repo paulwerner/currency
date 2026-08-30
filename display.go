@@ -29,21 +29,73 @@ import (
 // "zh" (Simplified), not to "zh-Hant" — pass the script subtag explicitly
 // where it matters.
 func (a *Amount) Display(locale string) string {
-	return a.display(lookupLocale(locale), formatStandard)
+	scale, _ := Standard.Rounding(a.currency)
+	return a.display(lookupLocale(locale), formatStandard, a.value, scale)
 }
 
-// display renders the amount using the locale at the given table index
-// and the pattern selected by the format style
-func (a *Amount) display(idx int, style formatStyle) string {
+// DisplayKind formats the amount for the given locale according to the
+// kind's display rules. Standard renders exactly like Display. Accounting
+// uses the locale's accounting pattern, which typically wraps negative
+// amounts in parentheses, e.g. "($12.34)" for "en". Cash first applies
+// the currency's cash rounding and cash scale, e.g. "CHF 10.15" for
+// 10.13 CHF (0.05 increments) and "12 kr" for 12.34 SEK (Swedish cash
+// has no öre). Ties round away from zero, as in Amount.Round.
+//
+// In the extreme case that cash rounding is not representable — the
+// value lies within half a cash step of the int bounds, including
+// math.MinInt — the amount is rendered unrounded at the currency's
+// standard scale rather than silently changing its magnitude.
+//
+// Locale lookup, symbol resolution, currency spacing, and the documented
+// limitations are the same as for Display.
+func (a *Amount) DisplayKind(locale string, k Kind) string {
+	stdScale, _ := Standard.Rounding(a.currency)
+	v, scale := a.value, stdScale
+	if k.rounding == cash {
+		v, scale = a.cashValue(k, stdScale)
+	}
+	return a.display(lookupLocale(locale), k.format, v, scale)
+}
+
+// cashValue applies the kind's cash rounding to the amount and re-scales
+// the result from the currency's standard scale to its cash scale,
+// returning the value in units of 10^-scale. When rounding overflows it
+// falls back to the unrounded value at the standard scale (see the
+// DisplayKind doc comment)
+func (a *Amount) cashValue(k Kind, stdScale int) (v, scale int) {
+	r, err := a.Round(k)
+	if err != nil {
+		return a.value, stdScale
+	}
+	cashScale, _ := k.Rounding(a.currency)
+	if cashScale > stdScale {
+		// same clamp as roundingStep: scales beyond the currency's
+		// minor unit cannot be represented
+		cashScale = stdScale
+	}
+	f, ok := pow(10, stdScale-cashScale)
+	if !ok {
+		// unreachable: the generated roundings table caps scales at 4
+		return a.value, stdScale
+	}
+	// r is a multiple of the cash step, which is a multiple of f, so
+	// the division is exact
+	return r.value / f, cashScale
+}
+
+// display renders v — an integer in units of 10^-scale of the amount's
+// currency — using the locale at the given table index and the pattern
+// selected by the format style
+func (a *Amount) display(idx int, style formatStyle, v, scale int) string {
 	loc := flattenLocale(idx)
 	p := loc.standard
 	if style == formatAccounting {
 		p = loc.accounting
 	}
 
-	number := a.formatDigits(p, loc.decimal, loc.group)
+	number := formatDigits(p, loc.decimal, loc.group, v, scale)
 	prefix, suffix := p.posPrefix, p.posSuffix
-	if a.value < 0 {
+	if v < 0 {
 		prefix, suffix = p.negPrefix, p.negSuffix
 	}
 	symbol := localeSymbol(idx, a.currency.Code())
@@ -65,11 +117,11 @@ func (a *Amount) display(idx int, style formatStyle) string {
 	return b.String()
 }
 
-// formatDigits renders the absolute decimal value with the locale's
-// separators: the integer digits grouped as the pattern prescribes, the
-// fractional digits zero-padded to the currency's standard scale
-func (a *Amount) formatDigits(p *localePattern, decimal, group string) string {
-	scale, _ := Standard.Rounding(a.currency)
+// formatDigits renders the absolute decimal value of v — an integer in
+// units of 10^-scale — with the locale's separators: the integer digits
+// grouped as the pattern prescribes, the fractional digits zero-padded
+// to the given scale
+func formatDigits(p *localePattern, decimal, group string, v, scale int) string {
 	exp := 1
 	if scale > 0 {
 		var ok bool
@@ -82,7 +134,7 @@ func (a *Amount) formatDigits(p *localePattern, decimal, group string) string {
 			scale, exp = 0, 1
 		}
 	}
-	whole, frac := a.value/exp, a.value%exp
+	whole, frac := v/exp, v%exp
 	if frac < 0 {
 		// |frac| < exp, safe to negate
 		frac = -frac

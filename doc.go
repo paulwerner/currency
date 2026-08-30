@@ -22,10 +22,11 @@
 //
 // Amount.String renders a locale-independent "EUR 12.34" form;
 // Amount.Display renders an amount for a BCP 47 locale using the CLDR
-// data, e.g. "19,99 €" for "de" and "€19.99" for "en". Kind-based
-// displaying (accounting parentheses, cash scales) is planned but not
-// yet implemented; see docs/ROADMAP.md for the current state of the
-// roadmap.
+// data, e.g. "19,99 €" for "de" and "€19.99" for "en"; and
+// Amount.DisplayKind adds kind-based display on top: the locale's
+// accounting pattern for negative amounts ("($12.34)" for "en") and
+// cash rounding at the cash scale ("CHF 10.15", "12 kr" for SEK). See
+// docs/ROADMAP.md for design notes and the change log.
 package currency
 
 //go:generate go run ./internal/cldrgen
