@@ -93,6 +93,9 @@ func TestAmount_Display_LocaleLookup(t *testing.T) {
 		// multi-step truncation: zh-Hant-TW → zh-Hant
 		{-1234, TWD, "zh-hant-tw", "-$12.34"},
 		{-1234, TWD, "zh_Hant_TW", "-$12.34"},
+		// documented limitation: no likely-subtags mapping, so zh-TW
+		// truncates to zh (Simplified), which shows TWD via root
+		{-1234, TWD, "zh-TW", "-NT$12.34"},
 		// region locales that do exist are used directly
 		{1234, CAD, "fr-CA", "12,34 $"},
 		{1234, AUD, "en-AU", "$12.34"},

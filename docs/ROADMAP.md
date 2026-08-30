@@ -65,8 +65,9 @@ Build/verify with `make build test vet fmt-check`; regenerate tables with
   apply cash rounding on top.
 - Documented limitations (Display doc comment): `latn` numbering system
   only, no per-currency pattern overrides, CLDR's minimum-grouping-digits
-  rule is not applied, and no bidi isolation marks are emitted for RTL
-  locales.
+  rule is not applied, no bidi isolation marks are emitted for RTL
+  locales, and no likely-subtags mapping — `zh-TW` truncates to `zh`,
+  not `zh-Hant`, so the script subtag must be passed explicitly.
 - Tests: rendering across locales and currencies (grouping variants,
   symbol fallback and resets, RTL data, `XXX` placeholder), tag
   normalization and fallback chains, `MinInt`/`MaxInt` bounds on 32- and

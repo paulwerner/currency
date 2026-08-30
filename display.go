@@ -24,7 +24,10 @@ import (
 //
 // Limitations: only the "latn" numbering system is supported, per-currency
 // pattern overrides and CLDR's minimum-grouping-digits rule are not
-// applied, and no bidi isolation marks are emitted for RTL locales.
+// applied, and no bidi isolation marks are emitted for RTL locales. No
+// likely-subtags mapping is applied either: truncation sends "zh-TW" to
+// "zh" (Simplified), not to "zh-Hant" — pass the script subtag explicitly
+// where it matters.
 func (a *Amount) Display(locale string) string {
 	return a.display(lookupLocale(locale), formatStandard)
 }
@@ -71,6 +74,11 @@ func (a *Amount) formatDigits(p *localePattern, decimal, group string) string {
 	if scale > 0 {
 		var ok bool
 		if exp, ok = pow(10, scale); !ok {
+			// unreachable: the generated roundings table caps scales
+			// at 4, so pow(10, scale) fits even in 32-bit int. The
+			// fallback renders minor units as whole units, corrupting
+			// the magnitude — if scales ever come from another source,
+			// it must not stay silent
 			scale, exp = 0, 1
 		}
 	}
