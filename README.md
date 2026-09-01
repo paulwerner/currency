@@ -71,13 +71,16 @@ func main() {
 
 ## Development
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for the roadmap's design notes and
-the change log.
-
 ```sh
 make build test vet fmt-check   # what CI runs
 make gen-fetch                  # refetch CLDR data and regenerate tables
 ```
+
+## Roadmap
+
+Calculator, currency/locale data generation, JSON de-/serialization,
+locale-based formatting, and kind-based displaying (standard, cash,
+accounting) are all implemented. No open items right now.
 
 ## Inspired by
 
