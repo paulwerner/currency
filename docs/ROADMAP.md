@@ -13,7 +13,7 @@ brought the repository to its current state.
 | Code generator | ✅ done |
 | Currency data generation | ✅ done |
 | De-/serialization (JSON) | ✅ done |
-| Documentation (package docs, AGENTS.md, README) | ✅ done |
+| Documentation (package docs, README) | ✅ done |
 | Locale data generation | ✅ done |
 | Locale-based formatting | ✅ done |
 | Kind-based displaying (standard, cash, accounting) | ✅ done |
@@ -183,9 +183,8 @@ All changes below were made during the 2026-08 review pass.
 
 ### Documentation
 
-- Package documentation in `doc.go`; contributor/agent guide in
-  `AGENTS.md`, referenced by `CLAUDE.md`; README rewritten to match the
-  actual API; this roadmap document.
+- Package documentation in `doc.go`; README rewritten to match the actual
+  API; this roadmap document.
 
 ### Review follow-ups
 
