@@ -71,10 +71,6 @@ func main() {
 
 ## Development
 
-See [AGENTS.md](AGENTS.md) for layout, conventions, and how to build and
-test, and [docs/ROADMAP.md](docs/ROADMAP.md) for the roadmap's design
-notes and the change log.
-
 ```sh
 make build test vet fmt-check   # what CI runs
 make gen-fetch                  # refetch CLDR data and regenerate tables

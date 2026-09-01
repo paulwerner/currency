@@ -1,5 +1,5 @@
 // Locale table generation: emits the locales and localePatterns tables
-// consumed by locale-based formatting (see docs/ROADMAP.md).
+// consumed by locale-based formatting.
 //
 // CLDR data is inherited along a locale's parent chain (de_CH -> de ->
 // root, with exceptions such as zh_Hant -> root listed in

@@ -7,7 +7,7 @@ import (
 )
 
 // TestLocales_Invariants checks the structural properties of the generated
-// locales table that the runtime lookup (see docs/ROADMAP.md) relies on
+// locales table that the runtime lookup relies on
 func TestLocales_Invariants(t *testing.T) {
 	root := locales[0]
 	if root.name != "root" || root.parent != 0 {

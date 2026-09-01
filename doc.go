@@ -25,8 +25,7 @@
 // data, e.g. "19,99 €" for "de" and "€19.99" for "en"; and
 // Amount.DisplayKind adds kind-based display on top: the locale's
 // accounting pattern for negative amounts ("($12.34)" for "en") and
-// cash rounding at the cash scale ("CHF 10.15", "12 kr" for SEK). See
-// docs/ROADMAP.md for design notes and the change log.
+// cash rounding at the cash scale ("CHF 10.15", "12 kr" for SEK).
 package currency
 
 //go:generate go run ./internal/cldrgen
